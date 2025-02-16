@@ -1,85 +1,13 @@
-# HBnB Technical Documentation
+# HBnB Technical Documentation - API Sequence Diagrams
 
-## 1. Introduction
+## 1. System Layers Overview
+- **Presentation Layer**: API endpoints and request handling
+- **Business Logic Layer**: Business rules and data processing
+- **Persistence Layer**: Data storage and retrieval
 
-[Section Introduction inchangée...]
+## 2. Sequence Diagrams Analysis
 
-## 2. System Architecture
-
-### 2.1 Overview
-
-The system follows a layered architecture pattern with clear separation of concerns:
-
-[Description des couches inchangée...]
-
-### 2.2 High-Level Architecture Diagram
-
-<img src="package_diagram.png" width="30%" alt="High-Level Architecture">
-
-*Figure 1: High-level architecture showing the layered design pattern with Presentation, Business Logic, and Persistence layers.*
-
-Key components shown in the diagram:
-- Presentation Layer: API Routes and Authentication
-- Business Logic Layer: Facade pattern and domain services
-- Persistence Layer: Database access and data models
-
-### 2.3 Key Design Patterns
-
-[Section Design Patterns inchangée...]
-
-## 3. Domain Models
-
-### 3.1 Class Diagram
-
-<img src="class_diagram.png" width="30%" alt="Class Diagram">
-
-*Figure 2: Detailed class diagram showing the relationships between core entities.*
-
-The class diagram above illustrates:
-- BaseModel as the parent class
-- Core entities: User, Place, Review, and Amenity
-- Relationships and cardinality between entities
-- Properties and methods for each class
-
-### 3.2 Core Entities
-
-#### BaseModel
-- Base class for all entities
-- Properties:
-  - id: UUID primary key
-  - created_at: Timestamp of creation
-  - updated_at: Timestamp of last update
-- Methods:
-  - save(): Updates the updated_at timestamp
-  - to_dict(): Converts object to dictionary format
-
-#### User
-- Represents a user in the system
-- Properties:
-  - email: User's email address (unique)
-  - password: Hashed password
-  - first_name: User's first name
-  - last_name: User's last name
-- Relationships:
-  - Has many Places
-  - Has many Reviews
-
-#### Place
-- Represents a rental property
-- Properties:
-  - name: Name of the place
-  - description: Detailed description
-  - price_per_night: Rental price
-  - latitude: Geographic coordinate
-  - longitude: Geographic coordinate
-- Relationships:
-  - Belongs to one User (owner)
-  - Has many Reviews
-  - Has many Amenities
-
-## 4. API Endpoints and Flow
-
-### 4.1 Place Operations
+### 2.1 Place Operations
 
 #### GET /places
 
@@ -105,7 +33,7 @@ Key interactions shown:
 - Duplicate handling
 - Error scenarios
 
-### 4.2 Review Operations
+### 2.2 Review Operations
 
 #### POST /reviews
 
@@ -119,7 +47,7 @@ The diagram details:
 - Success and error paths
 - Database interactions
 
-### 4.3 User Registration
+### 2.3 User Registration
 
 <img src="sequence_diagram4.png" width="30%" alt="Sequence Diagram - User Registration">
 
@@ -130,3 +58,214 @@ The diagram shows:
 - Data validation
 - Email uniqueness check
 - Error handling scenarios
+
+## 3. Layer Interactions
+
+### 3.1 User Registration Flow
+**Between Layers:**
+1. Presentation → Business
+   - Input validation
+   - Data formatting
+   - Request validation
+
+2. Business → Persistence
+   - Email uniqueness check
+   - Password encryption
+   - User object creation
+
+### 3.2 Place Creation Flow
+**Between Layers:**
+1. Presentation → Business
+   - Authentication check
+   - Place data validation
+   - Media handling
+
+2. Business → Persistence
+   - Data storage
+   - Relationship management
+   - Transaction handling
+
+### 3.3 Review Submission Flow
+**Between Layers:**
+1. Presentation → Business
+   - Auth verification
+   - Review validation
+   - Rating check
+
+2. Business → Persistence
+   - Place verification
+   - Review storage
+   - Rating update
+
+### 3.4 Places List Retrieval Flow
+**Between Layers:**
+1. Presentation → Business
+   - Query validation
+   - Filter processing
+   - Pagination setup
+
+2. Business → Persistence
+   - Cache check
+   - Data retrieval
+   - Result formatting
+
+## 4. Implementation Notes
+
+### 4.1 Error Handling
+- Layer-specific error types
+- Error propagation path
+- Standard error responses
+
+### 4.2 Performance
+- Caching strategy
+- Query optimization
+- Response time goals
+
+## 5. Detailed Layer Interactions Analysis
+
+### 5.1 Layer Communication Patterns
+
+**1. Presentation → Business Layer**
+- Request validation and sanitization
+- Authentication token verification
+- Input parameter processing
+- Response formatting
+
+**2. Business → Persistence Layer**
+- Data validation rules
+- Business logic application
+- Database query construction
+- Cache management
+
+**3. Inter-layer Data Flow**
+- Object serialization/deserialization
+- Error propagation
+- Status code mapping
+- Transaction management
+
+### 5.2 Operation-Specific Interactions
+
+**1. User Registration Process**
+```
+Presentation → Business:
+- Validate email format
+- Check password requirements
+- Format user data
+
+Business → Persistence:
+- Verify email uniqueness
+- Create user record
+- Handle transaction
+```
+
+**2. Place Creation Process**
+```
+Presentation → Business:
+- Verify auth token
+- Validate place data
+- Process uploaded files
+
+Business → Persistence:
+- Store place details
+- Handle media files
+- Create relationships
+```
+
+**3. Review Submission Process**
+```
+Presentation → Business:
+- Validate review content
+- Check user permissions
+- Process rating data
+
+Business → Persistence:
+- Update place ratings
+- Store review
+- Manage transaction
+```
+
+**4. Places List Retrieval Process**
+```
+Presentation → Business:
+- Process search params
+- Handle pagination
+- Apply filters
+
+Business → Persistence:
+- Query optimization
+- Cache handling
+- Result formatting
+```
+
+## 6. Additional Technical Details
+### 6.1 Sequence Diagram Analysis
+1. Request Flow
+   - Initial validation
+   - Authentication check
+   - Input processing
+   - Parameter validation
+
+2. Response Flow
+   - Data formatting
+   - Status code selection
+   - Error response structure
+   - Cache headers
+
+3. Data Processing
+   - Business rule validation
+   - Data transformation
+   - State management
+   - Transaction control
+
+### 6.2 Cross-Layer Communication
+1. Data Flow
+   - Request/Response format
+   - Error propagation
+   - Cache strategy
+   - Performance monitoring
+
+2. Security
+   - Authentication flow
+   - Authorization checks
+   - Input validation
+   - Rate limiting
+
+### 6.3 Basic Error Handling
+
+#### Common Error Scenarios
+1. Validation Errors (400)
+   ```
+   {
+     "error": "VALIDATION_ERROR",
+     "message": "Invalid input"
+   }
+   ```
+
+2. Auth Errors (401/403)
+   ```
+   {
+     "error": "AUTH_ERROR",
+     "message": "Unauthorized access"
+   }
+   ```
+
+3. Not Found (404)
+   ```
+   {
+     "error": "NOT_FOUND",
+     "message": "Resource not found"
+   }
+   ```
+
+4. Server Errors (500)
+   ```
+   {
+     "error": "SERVER_ERROR",
+     "message": "Internal error"
+   }
+   ```
+
+#### Error Recovery
+- Database rollback on failure
+- Basic retry for network issues
+- Error logging with timestamps
