@@ -221,8 +221,29 @@ The diagram illustrates:
 
 ### 5.3 Basic Error Handling
 
-#### Common Error Scenarios
-1. Validation Errors (400)
+#### Common Status Codes
+1. Success (200)
+   ```
+   {
+     "message": "Request successful"
+   }
+   ```
+
+2. Created (201)
+   ```
+   {
+     "message": "Resource created successfully"
+   }
+   ```
+
+3. No Content (204)
+   ```
+   {
+     "message": "No content"
+   }
+   ```
+
+4. Validation Errors (400)
    ```
    {
      "error": "VALIDATION_ERROR",
@@ -230,7 +251,7 @@ The diagram illustrates:
    }
    ```
 
-2. Auth Errors (401/403)
+5. Auth Errors (401/403)
    ```
    {
      "error": "AUTH_ERROR",
@@ -238,7 +259,7 @@ The diagram illustrates:
    }
    ```
 
-3. Not Found (404)
+6. Not Found (404)
    ```
    {
      "error": "NOT_FOUND",
@@ -246,7 +267,7 @@ The diagram illustrates:
    }
    ```
 
-4. Conflict (409)
+7. Conflict (409)
    ```
    {
      "error": "CONFLICT",
@@ -254,21 +275,7 @@ The diagram illustrates:
    }
    ```
 
-5. Created (201)
-   ```
-   {
-     "message": "Resource created successfully"
-   }
-   ```
-
-6. No Content (204)
-   ```
-   {
-     "message": "No content"
-   }
-   ```
-
-7. Server Errors (500)
+8. Server Errors (500)
    ```
    {
      "error": "SERVER_ERROR",
