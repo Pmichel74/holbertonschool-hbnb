@@ -32,32 +32,30 @@ Shows module dependencies and data flow direction.*
 
 ### 1.3 Class Diagram
 
-<img src="./class_diagram_start.png" width="45%" alt="Class Structure Diagram">
+<img src="./class_diagram.png" width="45%" alt="Class Structure Diagram">
 
 *Defines core models (User, Place, Review) with their attributes and relationships. 
 BaseModel provides common fields (id, timestamps) to all entities.*
 
 ## 2. Sequence Diagrams Analysis
 
-### 3.1 Place Operations
+### 2.1 User Registration
 
-#### GET /places
+<img src="./sequence_diagram_start.png" width="45%" alt="Sequence Diagram - User Registration">
 
-<img src="./sequence_diagram_getplace.png" width="45%" alt="Sequence Diagram - Get Places">
+*Figure 1: Sequence diagram showing the user registration flow.*
 
-*Figure 3: Sequence diagram showing the flow of GET /places request.*
+The diagram shows:
+- Registration process
+- Data validation
+- Email uniqueness check
+- Error handling scenarios
 
-The diagram illustrates:
-- Success scenario (200 OK)
-- Error handling for invalid parameters (400)
-- No content scenario (204)
-- Server error handling (500)
-
-#### POST /places
+### 2.2 Place Creation
 
 <img src="./sequence_diagram_postplace.png" width="45%" alt="Sequence Diagram - Create Place">
 
-*Figure 4: Sequence diagram showing the flow of POST /places request.*
+*Figure 2: Sequence diagram showing the flow of POST /places request.*
 
 Key interactions shown:
 - Validation flow
@@ -65,13 +63,11 @@ Key interactions shown:
 - Duplicate handling
 - Error scenarios
 
-### 3.2 Review Operations
-
-#### POST /reviews
+### 2.3 Review Operations
 
 <img src="./sequence_diagram_review.png" width="45%" alt="Sequence Diagram - Create Review">
 
-*Figure 5: Sequence diagram showing the flow of POST /reviews request.*
+*Figure 3: Sequence diagram showing the flow of POST /reviews request.*
 
 The diagram details:
 - Review submission process
@@ -79,17 +75,17 @@ The diagram details:
 - Success and error paths
 - Database interactions
 
-### 3.3 User Registration
+### 2.4 Places List Retrieval
 
-<img src="./sequence_diagram4.png" width="45%" alt="Sequence Diagram - User Registration">
+<img src="./sequence_diagram_getplace.png" width="45%" alt="Sequence Diagram - Get Places">
 
-*Figure 6: Sequence diagram showing the user registration flow.*
+*Figure 4: Sequence diagram showing the flow of GET /places request.*
 
-The diagram shows:
-- Registration process
-- Data validation
-- Email uniqueness check
-- Error handling scenarios
+The diagram illustrates:
+- Success scenario (200 OK)
+- Error handling for invalid parameters (400)
+- No content scenario (204)
+- Server error handling (500)
 
 ## 3. Layer Interactions
 
