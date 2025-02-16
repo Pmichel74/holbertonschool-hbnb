@@ -10,36 +10,122 @@
 Presentation (API/Web) → Business (Services/Models) → Persistence (Database/Storage).
 Shows module dependencies and data flow direction.*
 
-### 1.2 Layer Interactions
-
-**1. Presentation → Business Layer**
-- Request validation and sanitization
-- Authentication verification
-- Parameter processing
-- Response formatting
-
-**2. Business → Persistence Layer**
-- Data validation rules
-- Business logic application
-- Database operations
-- Cache management
-
-**3. Cross-Layer Concerns**
-- Error handling
-- Transaction management
-- Security checks
-- Performance optimization
-
-### 1.3 Class Diagram
+### 1.2 Class Diagram
 
 <img src="./class_diagram.png" width="45%" alt="Class Structure Diagram">
 
 *Defines core models (User, Place, Review) with their attributes and relationships. 
 BaseModel provides common fields (id, timestamps) to all entities.*
 
-## 2. Sequence Diagrams Analysis
+## 2. Layer Interactions
 
-### 2.1 User Registration
+### 2.1 Core Layer Communication Patterns
+
+**1. Presentation Layer (API/Web)**
+- Request/Response Handling:
+  - Input validation and sanitization
+  - Parameter processing
+  - Response formatting
+  - Error handling
+- Authentication:
+  - Token verification
+  - Authorization checks
+  - Session management
+- Data Flow:
+  - Request parsing
+  - Response serialization
+  - API endpoint routing
+
+**2. Business Layer (Services)**
+- Business Logic:
+  - Data validation rules
+  - Business rules enforcement
+  - Service orchestration
+- Data Processing:
+  - Object transformation
+  - State management
+  - Data aggregation
+- Security:
+  - Permission verification
+  - Business-level validation
+  - Transaction coordination
+
+**3. Persistence Layer (Storage)**
+- Data Operations:
+  - CRUD operations
+  - Query optimization
+  - Cache management
+- Data Integrity:
+  - Transaction handling
+  - Relationship management
+  - Constraint enforcement
+- Performance:
+  - Query optimization
+  - Connection pooling
+  - Cache strategies
+
+### 2.2 Operation-Specific Flows
+
+**1. User Registration**
+```
+Presentation → Business:
+- Validate email and password
+- Format user data
+- Handle authentication
+
+Business → Persistence:
+- Check email uniqueness
+- Create user record
+- Manage transaction
+```
+
+**2. Place Management**
+```
+Presentation → Business:
+- Validate place data
+- Handle media files
+- Process filters (for listing)
+
+Business → Persistence:
+- Store/retrieve place data
+- Manage relationships
+- Handle caching
+```
+
+**3. Review System**
+```
+Presentation → Business:
+- Validate review content
+- Check permissions
+- Process ratings
+
+Business → Persistence:
+- Update place ratings
+- Store review data
+- Ensure consistency
+```
+
+### 2.3 Cross-Layer Concerns
+- Error Handling:
+  - Error propagation
+  - Status code mapping
+  - Error recovery
+- Security:
+  - Authentication flow
+  - Authorization
+  - Data validation
+- Performance:
+  - Caching
+  - Query optimization
+  - Load balancing
+- Monitoring:
+  - Logging
+  - Metrics collection
+  - Performance tracking
+
+## 3. Sequence Diagrams Analysis
+
+### 3.1 User Registration
 
 <img src="./sequence_diagram_start.png" width="45%" alt="Sequence Diagram - User Registration">
 
@@ -51,7 +137,7 @@ The diagram shows:
 - Email uniqueness check
 - Error handling scenarios
 
-### 2.2 Place Creation
+### 3.2 Place Creation
 
 <img src="./sequence_diagram_postplace.png" width="45%" alt="Sequence Diagram - Create Place">
 
@@ -63,7 +149,7 @@ Key interactions shown:
 - Duplicate handling
 - Error scenarios
 
-### 2.3 Review Operations
+### 3.3 Review Operations
 
 <img src="./sequence_diagram_review.png" width="45%" alt="Sequence Diagram - Create Review">
 
@@ -75,7 +161,7 @@ The diagram details:
 - Success and error paths
 - Database interactions
 
-### 2.4 Places List Retrieval
+### 3.4 Places List Retrieval
 
 <img src="./sequence_diagram_getplace.png" width="45%" alt="Sequence Diagram - Get Places">
 
@@ -86,56 +172,6 @@ The diagram illustrates:
 - Error handling for invalid parameters (400)
 - No content scenario (204)
 - Server error handling (500)
-
-## 3. Layer Interactions
-
-### 3.1 User Registration Flow
-**Between Layers:**
-1. Presentation → Business
-   - Input validation
-   - Data formatting
-   - Request validation
-
-2. Business → Persistence
-   - Email uniqueness check
-   - Password encryption
-   - User object creation
-
-### 3.2 Place Creation Flow
-**Between Layers:**
-1. Presentation → Business
-   - Authentication check
-   - Place data validation
-   - Media handling
-
-2. Business → Persistence
-   - Data storage
-   - Relationship management
-   - Transaction handling
-
-### 3.3 Review Submission Flow
-**Between Layers:**
-1. Presentation → Business
-   - Auth verification
-   - Review validation
-   - Rating check
-
-2. Business → Persistence
-   - Place verification
-   - Review storage
-   - Rating update
-
-### 3.4 Places List Retrieval Flow
-**Between Layers:**
-1. Presentation → Business
-   - Query validation
-   - Filter processing
-   - Pagination setup
-
-2. Business → Persistence
-   - Cache check
-   - Data retrieval
-   - Result formatting
 
 ## 4. Implementation Notes
 
@@ -149,84 +185,9 @@ The diagram illustrates:
 - Query optimization
 - Response time goals
 
-## 5. Detailed Layer Interactions Analysis
+## 5. Additional Technical Details
 
-### 5.1 Layer Communication Patterns
-
-**1. Presentation → Business Layer**
-- Request validation and sanitization
-- Authentication token verification
-- Input parameter processing
-- Response formatting
-
-**2. Business → Persistence Layer**
-- Data validation rules
-- Business logic application
-- Database query construction
-- Cache management
-
-**3. Inter-layer Data Flow**
-- Object serialization/deserialization
-- Error propagation
-- Status code mapping
-- Transaction management
-
-### 5.2 Operation-Specific Interactions
-
-**1. User Registration Process**
-```
-Presentation → Business:
-- Validate email format
-- Check password requirements
-- Format user data
-
-Business → Persistence:
-- Verify email uniqueness
-- Create user record
-- Handle transaction
-```
-
-**2. Place Creation Process**
-```
-Presentation → Business:
-- Verify auth token
-- Validate place data
-- Process uploaded files
-
-Business → Persistence:
-- Store place details
-- Handle media files
-- Create relationships
-```
-
-**3. Review Submission Process**
-```
-Presentation → Business:
-- Validate review content
-- Check user permissions
-- Process rating data
-
-Business → Persistence:
-- Update place ratings
-- Store review
-- Manage transaction
-```
-
-**4. Places List Retrieval Process**
-```
-Presentation → Business:
-- Process search params
-- Handle pagination
-- Apply filters
-
-Business → Persistence:
-- Query optimization
-- Cache handling
-- Result formatting
-```
-
-## 6. Additional Technical Details
-### 6.1 Sequence Diagram Analysis
+### 5.1 Sequence Diagram Analysis
 1. Request Flow
    - Initial validation
    - Authentication check
@@ -245,7 +206,7 @@ Business → Persistence:
    - State management
    - Transaction control
 
-### 6.2 Cross-Layer Communication
+### 5.2 Cross-Layer Communication
 1. Data Flow
    - Request/Response format
    - Error propagation
@@ -258,7 +219,7 @@ Business → Persistence:
    - Input validation
    - Rate limiting
 
-### 6.3 Basic Error Handling
+### 5.3 Basic Error Handling
 
 #### Common Error Scenarios
 1. Validation Errors (400)
@@ -285,7 +246,29 @@ Business → Persistence:
    }
    ```
 
-4. Server Errors (500)
+4. Conflict (409)
+   ```
+   {
+     "error": "CONFLICT",
+     "message": "Resource conflict"
+   }
+   ```
+
+5. Created (201)
+   ```
+   {
+     "message": "Resource created successfully"
+   }
+   ```
+
+6. No Content (204)
+   ```
+   {
+     "message": "No content"
+   }
+   ```
+
+7. Server Errors (500)
    ```
    {
      "error": "SERVER_ERROR",
