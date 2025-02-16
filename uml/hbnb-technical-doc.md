@@ -10,16 +10,7 @@
 Presentation (API/Web) → Business (Services/Models) → Persistence (Database/Storage).
 Shows module dependencies and data flow direction.*
 
-### 1.2 Class Diagram
-
-<img src="./class_diagram.png" width="45%" alt="Class Structure Diagram">
-
-*Defines core models (User, Place, Review) with their attributes and relationships. 
-BaseModel provides common fields (id, timestamps) to all entities.*
-
-## 2. Layer Interactions
-
-### 2.1 Core Layer Communication Patterns
+### 1.2 Layer Interactions
 
 **1. Presentation Layer (API/Web)**
 - Request/Response Handling:
@@ -64,68 +55,16 @@ BaseModel provides common fields (id, timestamps) to all entities.*
   - Connection pooling
   - Cache strategies
 
-### 2.2 Operation-Specific Flows
+### 1.3 Class Diagram
 
-**1. User Registration**
-```
-Presentation → Business:
-- Validate email and password
-- Format user data
-- Handle authentication
+<img src="./class_diagram.png" width="45%" alt="Class Structure Diagram">
 
-Business → Persistence:
-- Check email uniqueness
-- Create user record
-- Manage transaction
-```
+*Defines core models (User, Place, Review) with their attributes and relationships. 
+BaseModel provides common fields (id, timestamps) to all entities.*
 
-**2. Place Management**
-```
-Presentation → Business:
-- Validate place data
-- Handle media files
-- Process filters (for listing)
+## 2. Sequence Diagrams Analysis
 
-Business → Persistence:
-- Store/retrieve place data
-- Manage relationships
-- Handle caching
-```
-
-**3. Review System**
-```
-Presentation → Business:
-- Validate review content
-- Check permissions
-- Process ratings
-
-Business → Persistence:
-- Update place ratings
-- Store review data
-- Ensure consistency
-```
-
-### 2.3 Cross-Layer Concerns
-- Error Handling:
-  - Error propagation
-  - Status code mapping
-  - Error recovery
-- Security:
-  - Authentication flow
-  - Authorization
-  - Data validation
-- Performance:
-  - Caching
-  - Query optimization
-  - Load balancing
-- Monitoring:
-  - Logging
-  - Metrics collection
-  - Performance tracking
-
-## 3. Sequence Diagrams Analysis
-
-### 3.1 User Registration
+### 2.1 User Registration
 
 <img src="./sequence_diagram_start.png" width="45%" alt="Sequence Diagram - User Registration">
 
@@ -137,7 +76,7 @@ The diagram shows:
 - Email uniqueness check
 - Error handling scenarios
 
-### 3.2 Place Creation
+### 2.2 Place Creation
 
 <img src="./sequence_diagram_postplace.png" width="45%" alt="Sequence Diagram - Create Place">
 
@@ -149,7 +88,7 @@ Key interactions shown:
 - Duplicate handling
 - Error scenarios
 
-### 3.3 Review Operations
+### 2.3 Review Operations
 
 <img src="./sequence_diagram_review.png" width="45%" alt="Sequence Diagram - Create Review">
 
@@ -161,7 +100,7 @@ The diagram details:
 - Success and error paths
 - Database interactions
 
-### 3.4 Places List Retrieval
+### 2.4 Places List Retrieval
 
 <img src="./sequence_diagram_getplace.png" width="45%" alt="Sequence Diagram - Get Places">
 
@@ -173,21 +112,21 @@ The diagram illustrates:
 - No content scenario (204)
 - Server error handling (500)
 
-## 4. Implementation Notes
+## 3. Implementation Notes
 
-### 4.1 Error Handling
+### 3.1 Error Handling
 - Layer-specific error types
 - Error propagation path
 - Standard error responses
 
-### 4.2 Performance
+### 3.2 Performance
 - Caching strategy
 - Query optimization
 - Response time goals
 
-## 5. Additional Technical Details
+## 4. Additional Technical Details
 
-### 5.1 Sequence Diagram Analysis
+### 4.1 Sequence Diagram Analysis
 1. Request Flow
    - Initial validation
    - Authentication check
@@ -206,7 +145,7 @@ The diagram illustrates:
    - State management
    - Transaction control
 
-### 5.2 Cross-Layer Communication
+### 4.2 Cross-Layer Communication
 1. Data Flow
    - Request/Response format
    - Error propagation
@@ -219,7 +158,7 @@ The diagram illustrates:
    - Input validation
    - Rate limiting
 
-### 5.3 Basic Error Handling
+### 4.3 Basic Error Handling
 
 #### Common Status Codes
 1. Success (200)
