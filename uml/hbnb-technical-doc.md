@@ -43,7 +43,39 @@ The class diagram above illustrates:
 
 ### 3.2 Core Entities
 
-[Description détaillée des entités inchangée...]
+#### BaseModel
+- Base class for all entities
+- Properties:
+  - id: UUID primary key
+  - created_at: Timestamp of creation
+  - updated_at: Timestamp of last update
+- Methods:
+  - save(): Updates the updated_at timestamp
+  - to_dict(): Converts object to dictionary format
+
+#### User
+- Represents a user in the system
+- Properties:
+  - email: User's email address (unique)
+  - password: Hashed password
+  - first_name: User's first name
+  - last_name: User's last name
+- Relationships:
+  - Has many Places
+  - Has many Reviews
+
+#### Place
+- Represents a rental property
+- Properties:
+  - name: Name of the place
+  - description: Detailed description
+  - price_per_night: Rental price
+  - latitude: Geographic coordinate
+  - longitude: Geographic coordinate
+- Relationships:
+  - Belongs to one User (owner)
+  - Has many Reviews
+  - Has many Amenities
 
 ## 4. API Endpoints and Flow
 
