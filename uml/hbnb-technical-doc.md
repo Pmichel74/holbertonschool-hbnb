@@ -4,7 +4,7 @@
 
 ### 1.1 Package Diagram
 
-<img src="/home/pat/hbnb/uml/package_diagram.png" width="30%" alt="Package Architecture Diagram">
+<img src="package_diagram.png" width="30%" alt="Package Architecture Diagram">
 
 *Illustrates the 3-tier architecture:
 Presentation (API/Web) → Business (Services/Models) → Persistence (Database/Storage).
@@ -12,7 +12,7 @@ Shows module dependencies and data flow direction.*
 
 ### 1.2 Class Diagram
 
-<img src="/home/pat/hbnb/uml/class_diagram.png" width="30%" alt="Class Structure Diagram">
+<img src="class_diagram.png" width="30%" alt="Class Structure Diagram">
 
 *Defines core models (User, Place, Review) with their attributes and relationships. 
 BaseModel provides common fields (id, timestamps) to all entities.*
