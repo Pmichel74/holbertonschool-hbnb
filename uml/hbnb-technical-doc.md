@@ -10,19 +10,34 @@
 Presentation (API/Web) → Business (Services/Models) → Persistence (Database/Storage).
 Shows module dependencies and data flow direction.*
 
-### 1.2 Class Diagram
+### 1.2 Layer Interactions
+
+**1. Presentation → Business Layer**
+- Request validation and sanitization
+- Authentication verification
+- Parameter processing
+- Response formatting
+
+**2. Business → Persistence Layer**
+- Data validation rules
+- Business logic application
+- Database operations
+- Cache management
+
+**3. Cross-Layer Concerns**
+- Error handling
+- Transaction management
+- Security checks
+- Performance optimization
+
+### 1.3 Class Diagram
 
 <img src="class_diagram.png" width="30%" alt="Class Structure Diagram">
 
 *Defines core models (User, Place, Review) with their attributes and relationships. 
 BaseModel provides common fields (id, timestamps) to all entities.*
 
-## 2. Layer Architecture
-- **Presentation Layer**: API endpoints and request handling
-- **Business Logic Layer**: Business rules and data processing
-- **Persistence Layer**: Data storage and retrieval
-
-## 3. Sequence Diagrams Analysis
+## 2. Sequence Diagrams Analysis
 
 ### 3.1 Place Operations
 
@@ -76,9 +91,9 @@ The diagram shows:
 - Email uniqueness check
 - Error handling scenarios
 
-## 4. Layer Interactions
+## 3. Layer Interactions
 
-### 4.1 User Registration Flow
+### 3.1 User Registration Flow
 **Between Layers:**
 1. Presentation → Business
    - Input validation
@@ -90,7 +105,7 @@ The diagram shows:
    - Password encryption
    - User object creation
 
-### 4.2 Place Creation Flow
+### 3.2 Place Creation Flow
 **Between Layers:**
 1. Presentation → Business
    - Authentication check
@@ -102,7 +117,7 @@ The diagram shows:
    - Relationship management
    - Transaction handling
 
-### 4.3 Review Submission Flow
+### 3.3 Review Submission Flow
 **Between Layers:**
 1. Presentation → Business
    - Auth verification
@@ -114,7 +129,7 @@ The diagram shows:
    - Review storage
    - Rating update
 
-### 4.4 Places List Retrieval Flow
+### 3.4 Places List Retrieval Flow
 **Between Layers:**
 1. Presentation → Business
    - Query validation
@@ -126,21 +141,21 @@ The diagram shows:
    - Data retrieval
    - Result formatting
 
-## 5. Implementation Notes
+## 4. Implementation Notes
 
-### 5.1 Error Handling
+### 4.1 Error Handling
 - Layer-specific error types
 - Error propagation path
 - Standard error responses
 
-### 5.2 Performance
+### 4.2 Performance
 - Caching strategy
 - Query optimization
 - Response time goals
 
-## 6. Detailed Layer Interactions Analysis
+## 5. Detailed Layer Interactions Analysis
 
-### 6.1 Layer Communication Patterns
+### 5.1 Layer Communication Patterns
 
 **1. Presentation → Business Layer**
 - Request validation and sanitization
@@ -160,7 +175,7 @@ The diagram shows:
 - Status code mapping
 - Transaction management
 
-### 6.2 Operation-Specific Interactions
+### 5.2 Operation-Specific Interactions
 
 **1. User Registration Process**
 ```
@@ -214,8 +229,8 @@ Business → Persistence:
 - Result formatting
 ```
 
-## 7. Additional Technical Details
-### 7.1 Sequence Diagram Analysis
+## 6. Additional Technical Details
+### 6.1 Sequence Diagram Analysis
 1. Request Flow
    - Initial validation
    - Authentication check
@@ -234,7 +249,7 @@ Business → Persistence:
    - State management
    - Transaction control
 
-### 7.2 Cross-Layer Communication
+### 6.2 Cross-Layer Communication
 1. Data Flow
    - Request/Response format
    - Error propagation
@@ -247,7 +262,7 @@ Business → Persistence:
    - Input validation
    - Rate limiting
 
-### 7.3 Basic Error Handling
+### 6.3 Basic Error Handling
 
 #### Common Error Scenarios
 1. Validation Errors (400)
