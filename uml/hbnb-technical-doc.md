@@ -4,7 +4,7 @@
 
 ### 1.1 Package Diagram
 
-<img src="package_diagram.png" width="30%" alt="Package Architecture Diagram">
+<img src="package_diagram.png" width="45%" alt="Package Architecture Diagram">
 
 *Illustrates the 3-tier architecture:
 Presentation (API/Web) → Business (Services/Models) → Persistence (Database/Storage).
@@ -32,7 +32,7 @@ Shows module dependencies and data flow direction.*
 
 ### 1.3 Class Diagram
 
-<img src="class_diagram.png" width="30%" alt="Class Structure Diagram">
+<img src="class_diagram.png" width="45%" alt="Class Structure Diagram">
 
 *Defines core models (User, Place, Review) with their attributes and relationships. 
 BaseModel provides common fields (id, timestamps) to all entities.*
@@ -43,7 +43,7 @@ BaseModel provides common fields (id, timestamps) to all entities.*
 
 #### GET /places
 
-<img src="sequence_diagram1.png" width="30%" alt="Sequence Diagram - Get Places">
+<img src="sequence_diagram1.png" width="45%" alt="Sequence Diagram - Get Places">
 
 *Figure 3: Sequence diagram showing the flow of GET /places request.*
 
@@ -55,7 +55,7 @@ The diagram illustrates:
 
 #### POST /places
 
-<img src="sequence_diagram2.png" width="30%" alt="Sequence Diagram - Create Place">
+<img src="sequence_diagram2.png" width="45%" alt="Sequence Diagram - Create Place">
 
 *Figure 4: Sequence diagram showing the flow of POST /places request.*
 
@@ -69,7 +69,7 @@ Key interactions shown:
 
 #### POST /reviews
 
-<img src="sequence_diagram3.png" width="30%" alt="Sequence Diagram - Create Review">
+<img src="sequence_diagram3.png" width="45%" alt="Sequence Diagram - Create Review">
 
 *Figure 5: Sequence diagram showing the flow of POST /reviews request.*
 
@@ -81,7 +81,7 @@ The diagram details:
 
 ### 3.3 User Registration
 
-<img src="sequence_diagram4.png" width="30%" alt="Sequence Diagram - User Registration">
+<img src="sequence_diagram4.png" width="45%" alt="Sequence Diagram - User Registration">
 
 *Figure 6: Sequence diagram showing the user registration flow.*
 
