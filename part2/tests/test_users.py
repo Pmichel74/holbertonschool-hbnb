@@ -72,5 +72,21 @@ class TestUserEndpoints(unittest.TestCase):
         )
         self.assertEqual(response2.status_code, 400)
 
+    def test_create_user_missing_field(self):
+        """Test création utilisateur avec champ manquant"""
+        data = {
+            'first_name': 'John',
+            'last_name': 'Doe',
+            # email manquant
+            'password': 'password123'
+        }
+        
+        response = self.client.post(
+            '/api/v1/users/',
+            json=data,
+            headers=self.headers
+        )
+        self.assertEqual(response.status_code, 400)
+
 if __name__ == '__main__':
     unittest.main()

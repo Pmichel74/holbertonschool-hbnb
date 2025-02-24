@@ -10,20 +10,20 @@ class HBnBFacade:
         return cls._instance
 
     def __init__(self):
-        # Assurons-nous que users existe même si __init__ est appelé plusieurs fois
+        # Ensure users exists even if __init__ is called multiple times
         if not hasattr(self, 'users'):
             self.users = {}
 
     def create_user(self, user_data):
-        """Crée un nouvel utilisateur"""
+        """Create a new user"""
         try:
-            # Validation des données
+            # Validate data
             required_fields = ['first_name', 'last_name', 'email', 'password']
             for field in required_fields:
                 if field not in user_data:
-                    raise ValueError(f"Le champ {field} est manquant")
+                    raise ValueError(f"The field {field} is missing")
 
-            # Création de l'utilisateur
+            # Create the user
             user = User(
                 first_name=user_data['first_name'],
                 last_name=user_data['last_name'],
@@ -34,13 +34,13 @@ class HBnBFacade:
             self.users[user.id] = user
             return user
         except Exception as e:
-            raise ValueError(f"Erreur lors de la création de l'utilisateur: {str(e)}")
+            raise ValueError(f"Error creating user: {str(e)}")
 
     def get_user_by_email(self, email):
-        """Recherche un utilisateur par email"""
+        """Find a user by email"""
         if not email:
             return None
         return next((user for user in self.users.values() if user.email == email), None)
 
-# Instance globale de la facade
+# Global facade instance
 facade = HBnBFacade()
