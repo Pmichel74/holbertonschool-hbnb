@@ -11,7 +11,7 @@ def create_app():
         version='1.0',
         title='HBnB API',
         description='API pour le projet HBnB',
-        prefix='/api/v1'
+        doc='/api/v1'
     )
 
     # Enregistrement des namespaces
