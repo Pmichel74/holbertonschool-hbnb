@@ -59,9 +59,7 @@ class UserList(Resource):
             new_user = facade.create_user(user_data)
             return new_user.to_dict(), 201
         except Exception as e:
-<<<<<<< HEAD
             api.abort(400, str(e))
-
 @api.route('/<string:user_id>')
 class UserResource(Resource):
     @api.expect(update_user_model)
@@ -121,6 +119,3 @@ class UserResource(Resource):
 
         except ValueError as e:
             api.abort(400, str(e))
-=======
-            api.abort(400, str(e))
->>>>>>> refs/remotes/origin/Test
