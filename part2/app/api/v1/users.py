@@ -1,4 +1,4 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields # type: ignore
 from app.services.facade import facade
 from models import storage
 from models.user import User
@@ -17,7 +17,7 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
-    @api.marshal_list_with(user_output_model)
+    @api.marshal_list_with(user_output_model) # type: ignore
     @api.doc(responses={
         200: 'Success',
         404: 'No users found'
@@ -27,8 +27,8 @@ class UserList(Resource):
         users = storage.all(User).values()
         return [user.to_dict() for user in users], 200
 
-    @api.expect(user_input_model, validate=True)
-    @api.marshal_with(user_output_model, code=201)
+    @api.expect(user_input_model, validate=True) # type: ignore
+    @api.marshal_with(user_output_model, code=201) # type: ignore
     @api.doc(responses={
         201: 'User created successfully',
         400: 'Email already registered or invalid data'
@@ -47,7 +47,7 @@ class UserList(Resource):
 
 @api.route('/<string:user_id>')
 class UserResource(Resource):
-    @api.marshal_with(user_output_model)
+    @api.marshal_with(user_output_model) # type: ignore
     @api.doc(responses={
         200: 'Success',
         404: 'User not found'
@@ -59,7 +59,7 @@ class UserResource(Resource):
             api.abort(404, "User not found")
         return user.to_dict(), 200
 
-    @api.expect(update_user_model)
+    @api.expect(update_user_model) # type: ignore
     @api.response(200, 'User successfully updated')
     @api.response(404, 'User not found')
     @api.response(400, 'Validation error')
