@@ -1,46 +1,37 @@
-from app.models.user import User
+from uuid import uuid4
 
-class HBnBFacade:
-    _instance = None
+# Simulation d'une base de données avec un dictionnaire
+users_db = {}
+
+def get_users():
+    """Récupère tous les utilisateurs"""
+    return list(users_db.values())
+
+def get_user(user_id):
+    """Récupère un utilisateur par son ID"""
+    return users_db.get(user_id)
+
+def create_user(data):
+    """Crée un nouvel utilisateur"""
+    user_id = str(uuid4())
+    user = {
+        'id': user_id,
+        'first_name': data['first_name'],
+        'last_name': data['last_name'],
+        'email': data['email']
+    }
+    users_db[user_id] = user
+    return user
+
+def update_user(user_id, data):
+    """Met à jour un utilisateur existant"""
+    if user_id not in users_db:
+        return None
     
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(HBnBFacade, cls).__new__(cls)
-            cls._instance.users = {}
-        return cls._instance
-
-    def __init__(self):
-        # Ensure users exists even if __init__ is called multiple times
-        if not hasattr(self, 'users'):
-            self.users = {}
-
-    def create_user(self, user_data):
-        """Create a new user"""
-        try:
-            # Validate data
-            required_fields = ['first_name', 'last_name', 'email', 'password']
-            for field in required_fields:
-                if field not in user_data:
-                    raise ValueError(f"The field {field} is missing")
-
-            # Create the user
-            user = User(
-                first_name=user_data['first_name'],
-                last_name=user_data['last_name'],
-                email=user_data['email'],
-                password=user_data['password']
-            )
-            
-            self.users[user.id] = user
-            return user
-        except Exception as e:
-            raise ValueError(f"Error creating user: {str(e)}")
-
-    def get_user_by_email(self, email):
-        """Find a user by email"""
-        if not email:
-            return None
-        return next((user for user in self.users.values() if user.email == email), None)
-
-# Global facade instance
-facade = HBnBFacade()
+    user = users_db[user_id]
+    user.update({
+        'first_name': data['first_name'],
+        'last_name': data['last_name'],
+        'email': data['email']
+    })
+    return user

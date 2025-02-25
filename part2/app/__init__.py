@@ -14,7 +14,6 @@ def create_app():
         prefix='/api/v1'
     )
 
-    # Enregistrement des namespaces
-    api.add_namespace(users_ns)
-
+    api.add_namespace(users_ns, path='/users')
+    
     return app

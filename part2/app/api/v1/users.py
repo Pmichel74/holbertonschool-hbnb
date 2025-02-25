@@ -1,44 +1,56 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import facade
+from app.services import facade
 
 api = Namespace('users', description='User operations')
 
-# Validation model for input
-user_input_model = api.model('UserInput', {
-    'first_name': fields.String(required=True, description='User first name'),
-    'last_name': fields.String(required=True, description='User last name'),
-    'email': fields.String(required=True, description='User email'),
-    'password': fields.String(required=True, description='Password')
+user_model = api.model('User', {
+    'first_name': fields.String(required=True, description='First name of the user'),
+    'last_name': fields.String(required=True, description='Last name of the user'),
+    'email': fields.String(required=True, description='Email of the user')
 })
 
-# Response model (without password)
-user_output_model = api.model('UserOutput', {
-    'id': fields.String(description='Unique user ID'),
-    'first_name': fields.String(description='User first name'),
-    'last_name': fields.String(description='User last name'),
-    'email': fields.String(description='User email')
+user_response_model = api.model('UserResponse', {
+    'id': fields.String(description='User unique identifier'),
+    'first_name': fields.String(description='First name of the user'),
+    'last_name': fields.String(description='Last name of the user'),
+    'email': fields.String(description='Email of the user')
 })
 
 @api.route('/')
 class UserList(Resource):
-    @api.expect(user_input_model, validate=True)
-    @api.marshal_with(user_output_model, code=201)
-    @api.doc(responses={
-        201: 'User created successfully',
-        400: 'Email already registered or invalid data'
-    })
+    @api.doc('list_users')
+    @api.marshal_list_with(user_response_model)
+    def get(self):
+        """List all users"""
+        return facade.get_users()
+
+    @api.doc('create_user')
+    @api.expect(user_model)
+    @api.marshal_with(user_response_model, code=201)
     def post(self):
         """Create a new user"""
-        try:
-            user_data = api.payload
+        return facade.create_user(api.payload), 201
 
-            # Check email uniqueness
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user:
-                api.abort(400, 'Email already registered')
+@api.route('/<string:user_id>')
+@api.param('user_id', 'The user identifier')
+class User(Resource):
+    @api.doc('get_user')
+    @api.marshal_with(user_response_model)
+    @api.response(404, 'User not found')
+    def get(self, user_id):
+        """Get a user by ID"""
+        user = facade.get_user(user_id)
+        if not user:
+            api.abort(404, f"User {user_id} not found")
+        return user
 
-            new_user = facade.create_user(user_data)
-            return new_user.to_dict(), 201
-            
-        except Exception as e:
-            api.abort(400, str(e))
+    @api.doc('update_user')
+    @api.expect(user_model)
+    @api.marshal_with(user_response_model)
+    @api.response(404, 'User not found')
+    def put(self, user_id):
+        """Update a user"""
+        user = facade.update_user(user_id, api.payload)
+        if not user:
+            api.abort(404, f"User {user_id} not found")
+        return user
