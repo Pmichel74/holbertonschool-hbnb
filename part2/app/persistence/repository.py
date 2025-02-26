@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from app.models.amenity import Amenity
 
 class Repository(ABC):
     @abstractmethod
@@ -50,3 +51,34 @@ class InMemoryRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+
+# -------------------- Repository spécifique pour les commodités --------------------
+class AmenityRepository(InMemoryRepository):
+    def __init__(self):
+        super().__init__()
+
+    def add(self, amenity):
+        """Ajoute une commodité dans le stockage"""
+        if not isinstance(amenity, Amenity):
+            raise ValueError("L'objet doit être une instance de Amenity")
+        super().add(amenity)
+
+    def get(self, amenity_id):
+        """Récupère une commodité par son ID"""
+        return super().get(amenity_id)
+
+    def get_all(self):
+        """Récupère toutes les commodités"""
+        return super().get_all()
+
+    def update(self, amenity_id, data):
+        """Met à jour une commodité"""
+        super().update(amenity_id, data)
+
+    def delete(self, amenity_id):
+        """Supprime une commodité par son ID"""
+        super().delete(amenity_id)
+
+    def get_by_attribute(self, attr_name, attr_value):
+        """Recherche une commodité par un attribut spécifique"""
+        return super().get_by_attribute(attr_name, attr_value)
