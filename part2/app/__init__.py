@@ -1,16 +1,8 @@
-from flask import Flask
+from flask import Flask, redirect
 from flask_restx import Api
 from app.api.v1.users import api as users_ns
 
 def create_app():
-    """Create and configure the Flask application.
-    
-    Creates a new Flask instance, configures the REST API 
-    and registers the user namespace.
-    
-    Returns:
-        Flask: A configured Flask application instance.
-    """
     app = Flask(__name__)
     
     # API Configuration
@@ -19,9 +11,14 @@ def create_app():
         version='1.0',
         title='HBnB API',
         description='API for the HBnB project',
-        prefix='/api/v1'
+        doc='/api/v1'  # Documentation Swagger ici
     )
 
-    api.add_namespace(users_ns, path='/users')
+    api.add_namespace(users_ns, path='/api/v1/users')
+    
+    # Ajouter une redirection de la racine vers la documentation
+    @app.route('/')
+    def index():
+        return redirect('/api/v1')
     
     return app

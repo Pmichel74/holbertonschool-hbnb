@@ -19,39 +19,20 @@ user_response_model = api.model('UserResponse', {
 @api.route('/')
 class UserList(Resource):
     def get(self):
-        """List all users.
-        
-        Returns:
-            list: List of all users in the system.
-        """
+        """List all users"""
         return facade.get_users()
 
     @api.expect(user_model)
-    @api.marshal_with(user_response_model, code=201)
+    
     def post(self):
-        """Create a new user.
-        
-        Returns:
-            dict: The newly created user data.
-            int: HTTP 201 status code.
-        """
+        """Create a new user"""
         return facade.create_user(api.payload), 201
 
 @api.route('/<string:user_id>')
 @api.param('user_id', 'The user identifier')
 class User(Resource):
     def get(self, user_id):
-        """Get a user by ID.
-        
-        Args:
-            user_id (str): The unique identifier of the user.
-            
-        Returns:
-            dict: User data if found.
-            
-        Raises:
-            404: If user is not found.
-        """
+        """Get a user by ID."""
         user = facade.get_user(user_id)
         if not user:
             api.abort(404, f"User {user_id} not found")
@@ -59,17 +40,7 @@ class User(Resource):
 
     @api.expect(user_model)
     def put(self, user_id):
-        """Update a user.
-        
-        Args:
-            user_id (str): The unique identifier of the user to update.
-            
-        Returns:
-            dict: Updated user data.
-            
-        Raises:
-            404: If user is not found.
-        """
+        """Update a user."""
         user = facade.update_user(user_id, api.payload)
         if not user:
             api.abort(404, f"User {user_id} not found")
