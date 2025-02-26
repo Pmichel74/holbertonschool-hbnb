@@ -1,4 +1,0 @@
-{
-    "python.defaultInterpreterPath": "${workspaceFolder}/env/bin/python3",
-    "python.analysis.extraPaths": ["${workspaceFolder}"]
-}
