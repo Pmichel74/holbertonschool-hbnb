@@ -1,20 +1,24 @@
-from flask import Flask
+from flask import Flask, redirect
 from flask_restx import Api
 from app.api.v1.users import api as users_ns
 
 def create_app():
     app = Flask(__name__)
     
-    # Configuration de l'API
+    # API Configuration
     api = Api(
         app,
         version='1.0',
         title='HBnB API',
-        description='API pour le projet HBnB',
-        doc='/api/v1'
+        description='API for the HBnB project',
+        doc='/api/v1'  # Documentation Swagger ici
     )
 
-    # Enregistrement des namespaces
-    api.add_namespace(users_ns)
-
+    api.add_namespace(users_ns, path='/api/v1/users')
+    
+    # Ajouter une redirection de la racine vers la documentation
+    @app.route('/')
+    def index():
+        return redirect('/api/v1')
+    
     return app
