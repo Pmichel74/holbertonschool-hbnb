@@ -1,9 +1,13 @@
 venv/
-env/
 .venv/
 ENV/
 virtualenv/
 pythonenv/
+
+env/
+*/env/
+part2/env/
+part2/env/**/*
 
 __pycache__/
 *.py[cod]
