@@ -22,13 +22,13 @@ class AmenityList(Resource):
         amenity, error = facade.create_amenity(data)
         if error:
             return {'error': error}, 400
-        return amenity.to_dict(), 201
+        return amenity, 201
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Retrieve a list of all amenities"""
-        amenities = facade.get_all_amenities()
-        return [amenity.to_dict() for amenity in amenities], 200
+        amenities = facade.get_amenities()
+        return amenities, 200
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -39,7 +39,7 @@ class AmenityResource(Resource):
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {'error': 'Amenity not found'}, 404
-        return amenity.to_dict(), 200
+        return amenity, 200
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
