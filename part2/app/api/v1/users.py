@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource, fields
-from app.services import facade
+from app.services.facade import Facade  # Importation de la classe au lieu du module
 
 api = Namespace('users', description='User operations')
+facade = Facade()  # Création d'une instance de la classe Facade
 
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
