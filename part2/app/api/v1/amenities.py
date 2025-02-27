@@ -1,8 +1,7 @@
 from flask_restx import Namespace, Resource, fields
-from app.services.facade import Facade  # Importation de la classe au lieu du module
+from app.services import facade  # Importation de la classe au lieu du module
 
 api = Namespace('amenities', description='Amenity operations')
-facade = Facade()  # Création d'une instance de la classe Facade
 
 # Define the amenity model for input validation and documentation
 amenity_model = api.model('Amenity', {
