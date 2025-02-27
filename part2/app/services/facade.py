@@ -78,3 +78,29 @@ def update_amenity(amenity_id, data):
 
     amenity_repo.update(amenity_id, data)  # Utilise le repository pour mettre à jour la commodité
     return amenity.to_dict()
+
+class HBnBFacade:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(HBnBFacade, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
+        self.users = {}  # Dictionnaire pour stocker les utilisateurs
+
+    def update_user(self, user_id, user_data):
+        """Update a user"""
+        if user_id not in self.users:
+            return None
+        user = self.users[user_id]
+        user.update(user_data)
+        return user
+
+def get_facade():
+    return HBnBFacade()
