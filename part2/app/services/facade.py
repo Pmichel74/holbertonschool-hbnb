@@ -7,6 +7,7 @@ class Facade:
     def __init__(self):
         self.users_db = {}
         self.amenities_db = {}
+        self.reviews_db = {}  # Ajouté pour gérer les reviews
 
     # Méthodes pour les utilisateurs
     def get_users(self):
@@ -153,7 +154,7 @@ class Facade:
             place_id (str): ID du place à récupérer
             
         Returns:
-            dict: Détails du place incluant le propriétaire et les commodités,
+            dict: Détails du place incluant le propriétaire, les commodités et les reviews,
                 ou None si non trouvé
         """
         # Vérifier que places_db existe
@@ -193,6 +194,13 @@ class Facade:
                 pass
         
         place_result['amenities'] = amenities_list
+        
+        # Ajouter les reviews associées à la place
+        reviews_list = []
+        for review in self.reviews_db.values():
+            if review.get('place_id') == place_id:
+                reviews_list.append(review)
+        place_result['reviews'] = reviews_list
         
         return place_result
 
@@ -259,3 +267,70 @@ class Facade:
                 place[key] = value
         
         return place
+
+    # Méthodes pour les reviews
+    def create_review(self, review_data):
+        """Créer une nouvelle review"""
+        # Validation : texte non vide, rating entre 1 et 5
+        if not review_data.get('text'):
+            raise ValueError("Le texte de la review est requis")
+        if 'rating' not in review_data or not (1 <= review_data['rating'] <= 5):
+            raise ValueError("La note (rating) doit être entre 1 et 5")
+        # Vérifier que l'utilisateur existe
+        user_id = review_data.get('user_id')
+        if user_id not in self.users_db:
+            raise ValueError(f"Utilisateur avec ID {user_id} n'existe pas")
+        # Vérifier que la place existe
+        place_id = review_data.get('place_id')
+        if not hasattr(self, 'places_db') or place_id not in self.places_db:
+            raise ValueError(f"Place avec ID {place_id} n'existe pas")
+        
+        review_id = str(uuid4())
+        review = {
+            'id': review_id,
+            'text': review_data.get('text'),
+            'rating': review_data.get('rating'),
+            'user_id': user_id,
+            'place_id': place_id
+        }
+        self.reviews_db[review_id] = review
+        return review
+
+    def get_review(self, review_id):
+        """Récupérer une review par son ID"""
+        return self.reviews_db.get(review_id)
+
+    def get_all_reviews(self):
+        """Récupérer toutes les reviews"""
+        return list(self.reviews_db.values())
+
+    def get_reviews_by_place(self, place_id):
+        """Récupérer toutes les reviews pour une place spécifique"""
+        # Vérifier que la place existe
+        if not hasattr(self, 'places_db') or place_id not in self.places_db:
+            return None
+        return [review for review in self.reviews_db.values() if review.get('place_id') == place_id]
+
+    def update_review(self, review_id, review_data):
+        """Mettre à jour une review existante"""
+        review = self.reviews_db.get(review_id)
+        if not review:
+            return None
+        # Mise à jour uniquement des champs 'text' et 'rating'
+        if 'text' in review_data:
+            review['text'] = review_data['text']
+        if 'rating' in review_data:
+            if not (1 <= review_data['rating'] <= 5):
+                raise ValueError("La note (rating) doit être entre 1 et 5")
+            review['rating'] = review_data['rating']
+        return review
+
+    def delete_review(self, review_id):
+        """Supprimer une review par son ID"""
+        if review_id in self.reviews_db:
+            del self.reviews_db[review_id]
+            return True
+        return False
+
+# Instance globale pour un accès direct depuis les autres modules
+facade = Facade()
