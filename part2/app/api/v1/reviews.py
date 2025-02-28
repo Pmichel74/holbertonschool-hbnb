@@ -19,7 +19,7 @@ class ReviewList(Resource):
     def post(self):
         """Créer une nouvelle review"""
         review_data = api.payload
-        review = facade.HBnBFacade().create_review(review_data)
+        review = facade.create_review(review_data)
         if review:
             return review, 201
         return {'message': 'Données invalides'}, 400
@@ -27,16 +27,16 @@ class ReviewList(Resource):
     @api.response(200, 'Liste des reviews récupérée avec succès')
     def get(self):
         """Récupérer toutes les reviews"""
-        reviews = facade.HBnBFacade().get_all_reviews()
+        reviews = facade.get_all_reviews()
         return reviews, 200
 
-@api.route('/<review_id>')
+@api.route('/<string:review_id>')
 class ReviewResource(Resource):
     @api.response(200, 'Détails de la review récupérés avec succès')
     @api.response(404, 'Review non trouvée')
     def get(self, review_id):
         """Récupérer les détails d'une review"""
-        review = facade.HBnBFacade().get_review(review_id)
+        review = facade.get_review(review_id)
         if review:
             return review, 200
         return {'message': 'Review non trouvée'}, 404
@@ -48,7 +48,7 @@ class ReviewResource(Resource):
     def put(self, review_id):
         """Mettre à jour une review"""
         review_data = api.payload
-        updated = facade.HBnBFacade().update_review(review_id, review_data)
+        updated = facade.update_review(review_id, review_data)
         if updated:
             return {'message': 'Review mise à jour avec succès'}, 200
         return {'message': 'Review non trouvée ou données invalides'}, 404
@@ -57,18 +57,18 @@ class ReviewResource(Resource):
     @api.response(404, 'Review non trouvée')
     def delete(self, review_id):
         """Supprimer une review"""
-        deleted = facade.HBnBFacade().delete_review(review_id)
+        deleted = facade.delete_review(review_id)
         if deleted:
             return {'message': 'Review supprimée avec succès'}, 200
         return {'message': 'Review non trouvée'}, 404
 
-@api.route('/places/<place_id>/reviews')
+@api.route('/places/<string:place_id>/reviews')
 class PlaceReviewList(Resource):
     @api.response(200, 'Liste des reviews pour la place récupérée avec succès')
     @api.response(404, 'Place non trouvée')
     def get(self, place_id):
         """Récupérer toutes les reviews associées à une place"""
-        reviews = facade.HBnBFacade().get_reviews_by_place(place_id)
+        reviews = facade.get_reviews_by_place(place_id)
         if reviews is not None:
             return reviews, 200
         return {'message': 'Place non trouvée'}, 404
