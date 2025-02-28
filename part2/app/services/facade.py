@@ -153,8 +153,8 @@ class Facade:
             place_id (str): ID du place à récupérer
             
         Returns:
-            dict: Détails du place incluant le propriétaire et les commodités,
-                ou None si non trouvé
+            dict: Détails du place incluant le propriétaire, les commodités et les reviews,
+                  ou None si non trouvé
         """
         # Vérifier que places_db existe
         if not hasattr(self, 'places_db'):
@@ -164,7 +164,7 @@ class Facade:
         if not place:
             return None
         
-        # Construire la réponse détaillée avec propriétaire et commodités
+        # Construire la réponse détaillée
         place_result = dict(place)  # Copie pour ne pas modifier l'original
         
         # Récupérer les détails du propriétaire
@@ -193,6 +193,13 @@ class Facade:
                 pass
         
         place_result['amenities'] = amenities_list
+        
+        # Récupérer les reviews associées
+        try:
+            reviews = self.get_reviews_by_place(place_id)
+            place_result['reviews'] = reviews
+        except ValueError:
+            place_result['reviews'] = []
         
         return place_result
 
@@ -259,3 +266,179 @@ class Facade:
                 place[key] = value
         
         return place
+
+    def create_review(self, review_data):
+        """Create a new review
+        
+        Args:
+            review_data (dict): Review data including text, rating, user_id, place_id
+                
+        Returns:
+            dict: The newly created review
+            
+        Raises:
+            ValueError: If the review data is invalid
+        """
+        # Validate user_id
+        if not review_data.get('user_id') or review_data['user_id'] not in self.users_db:
+            raise ValueError(f"User with ID {review_data.get('user_id')} does not exist")
+        
+        # Validate place_id
+        if not hasattr(self, 'places_db'):
+            self.places_db = {}
+        
+        if not review_data.get('place_id') or review_data['place_id'] not in self.places_db:
+            raise ValueError(f"Place with ID {review_data.get('place_id')} does not exist")
+        
+        # Validate rating
+        if 'rating' in review_data:
+            try:
+                rating = int(review_data['rating'])
+                if not 1 <= rating <= 5:
+                    raise ValueError("Rating must be between 1 and 5")
+                review_data['rating'] = rating
+            except (ValueError, TypeError):
+                raise ValueError("Rating must be an integer between 1 and 5")
+        
+        # Validate text
+        if not review_data.get('text'):
+            raise ValueError("Review text is required")
+        
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        # Create review object
+        review_id = str(uuid4())
+        review = {
+            'id': review_id,
+            'text': review_data.get('text', ''),
+            'rating': review_data.get('rating', 0),
+            'user_id': review_data.get('user_id', ''),
+            'place_id': review_data.get('place_id', '')
+        }
+        
+        # Save to "database"
+        self.reviews_db[review_id] = review
+        return review
+
+    def get_review(self, review_id):
+        """Get review by ID
+        
+        Args:
+            review_id (str): ID of the review to retrieve
+            
+        Returns:
+            dict: The review data if found, or None if not found
+        """
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        return self.reviews_db.get(review_id)
+
+    def get_all_reviews(self):
+        """Get all reviews
+        
+        Returns:
+            list: List of all reviews
+        """
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        return list(self.reviews_db.values())
+
+    def get_reviews_by_place(self, place_id):
+        """Get all reviews for a specific place
+        
+        Args:
+            place_id (str): ID of the place
+            
+        Returns:
+            list: List of reviews for this place
+            
+        Raises:
+            ValueError: If the place does not exist
+        """
+        # Validate place exists
+        if not hasattr(self, 'places_db'):
+            self.places_db = {}
+        
+        if place_id not in self.places_db:
+            raise ValueError(f"Place with ID {place_id} does not exist")
+        
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        # Filter reviews by place_id
+        return [
+            review for review in self.reviews_db.values()
+            if review.get('place_id') == place_id
+        ]
+
+    def update_review(self, review_id, review_data):
+        """Update an existing review
+        
+        Args:
+            review_id (str): ID of the review to update
+            review_data (dict): New review data
+            
+        Returns:
+            dict: The updated review, or None if not found
+            
+        Raises:
+            ValueError: If the data is invalid
+        """
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        # Check if review exists
+        if review_id not in self.reviews_db:
+            return None
+        
+        review = self.reviews_db[review_id]
+        
+        # Validate rating if provided
+        if 'rating' in review_data:
+            try:
+                rating = int(review_data['rating'])
+                if not 1 <= rating <= 5:
+                    raise ValueError("Rating must be between 1 and 5")
+                review_data['rating'] = rating
+            except (ValueError, TypeError):
+                raise ValueError("Rating must be an integer between 1 and 5")
+        
+        # Validate text if provided
+        if 'text' in review_data and not review_data['text']:
+            raise ValueError("Review text is required")
+        
+        # Update attributes (except id, user_id, place_id)
+        for key, value in review_data.items():
+            if key not in ['id', 'user_id', 'place_id']:
+                review[key] = value
+        
+        return review
+
+    def delete_review(self, review_id):
+        """Delete a review
+        
+        Args:
+            review_id (str): ID of the review to delete
+            
+        Returns:
+            bool: True if successfully deleted, False otherwise
+        """
+        # Initialize reviews_db if needed
+        if not hasattr(self, 'reviews_db'):
+            self.reviews_db = {}
+        
+        # Check if review exists
+        if review_id not in self.reviews_db:
+            return False
+        
+        # Delete the review
+        del self.reviews_db[review_id]
+        return True
