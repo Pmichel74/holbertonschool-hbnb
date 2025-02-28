@@ -11,6 +11,15 @@ review_model = api.model('Review', {
     'place_id': fields.String(required=True, description='ID of the place')
 })
 
+# Model for detailed review information
+review_output_model = api.model('ReviewOutput', {
+    'id': fields.String(description='Review ID'),
+    'text': fields.String(description='Text of the review'),
+    'rating': fields.Integer(description='Rating of the place (1-5)'),
+    'user_id': fields.String(description='ID of the user'),
+    'place_id': fields.String(description='ID of the place')
+})
+
 @api.route('/')
 class ReviewList(Resource):
     @api.expect(review_model)
@@ -76,20 +85,19 @@ class PlaceReviewList(Resource):
     def get(self, place_id):
         """Get all reviews for a specific place"""
         try:
-            # Check if place exists
-            place = facade.get_place(place_id)
-            if not place:
-                api.abort(404, f"Place {place_id} not found")
-
             # Get reviews for the place
             reviews = facade.get_reviews_by_place(place_id)
             
-            # Return formatted reviews (empty list if no reviews)
+            # Return empty list if no reviews found
+            if not reviews:
+                return []
+                
+            # Format response according to specification
             return [{
                 'id': review['id'],
                 'text': review['text'],
                 'rating': review['rating']
-            } for review in (reviews or [])], 200
-
+            } for review in reviews], 200
+            
         except Exception as e:
-            api.abort(500, str(e))
+            return [], 200  # Return empty list instead of error

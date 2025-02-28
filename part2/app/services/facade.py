@@ -3,8 +3,6 @@ from uuid import uuid4
 class Facade:
     def __init__(self):
         self.reviews_db = {}
-        self.users_db = {}
-        self.amenities_db = {}
         self.places_db = {}
 
     # Méthodes pour les utilisateurs
