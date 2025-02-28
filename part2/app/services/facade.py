@@ -1,12 +1,9 @@
 from uuid import uuid4
-#from app.models.place import Place
-#from app.models.user import User
-#from app.models.amenity import Amenity
 
 class Facade:
     def __init__(self):
-        self.users_db = {}
-        self.amenities_db = {}
+        self.reviews_db = {}
+        self.places_db = {}
 
     # Méthodes pour les utilisateurs
     def get_users(self):
@@ -147,54 +144,8 @@ class Facade:
         return place
 
     def get_place(self, place_id):
-        """Récupérer un place par son ID
-        
-        Args:
-            place_id (str): ID du place à récupérer
-            
-        Returns:
-            dict: Détails du place incluant le propriétaire et les commodités,
-                ou None si non trouvé
-        """
-        # Vérifier que places_db existe
-        if not hasattr(self, 'places_db'):
-            self.places_db = {}
-        
-        place = self.places_db.get(place_id)
-        if not place:
-            return None
-        
-        # Construire la réponse détaillée avec propriétaire et commodités
-        place_result = dict(place)  # Copie pour ne pas modifier l'original
-        
-        # Récupérer les détails du propriétaire
-        owner = self.get_user(place['owner_id'])
-        if owner:
-            place_result['owner'] = {
-                'id': owner['id'],
-                'first_name': owner['first_name'],
-                'last_name': owner['last_name'],
-                'email': owner['email']
-            }
-        else:
-            place_result['owner'] = None
-            
-        # Récupérer les détails des commodités
-        amenities_list = []
-        for amenity_id in place.get('amenities', []):
-            try:
-                amenity = self.get_amenity(amenity_id)
-                amenities_list.append({
-                    'id': amenity['id'],
-                    'name': amenity['name']
-                })
-            except ValueError:
-                # Ignorer les commodités qui n'existent pas
-                pass
-        
-        place_result['amenities'] = amenities_list
-        
-        return place_result
+        """Get a place by ID"""
+        return self.places_db.get(place_id)
 
     def get_all_places(self):
         """Récupérer tous les places
@@ -259,3 +210,49 @@ class Facade:
                 place[key] = value
         
         return place
+
+    def create_review(self, review_data):
+        """Create a new review with validation"""
+        if not all(key in review_data for key in ['text', 'rating', 'user_id', 'place_id']):
+            raise ValueError("Missing required fields")
+        
+        if not isinstance(review_data['rating'], int) or not 1 <= review_data['rating'] <= 5:
+            raise ValueError("Rating must be an integer between 1 and 5")
+            
+        review_id = str(uuid4())
+        review = {
+            'id': review_id,
+            **review_data
+        }
+        self.reviews_db[review_id] = review
+        return review
+
+    def get_review(self, review_id):
+        """Get a review by ID"""
+        return self.reviews_db.get(review_id)
+
+    def get_all_reviews(self):
+        """Get all reviews"""
+        return list(self.reviews_db.values())
+
+    def update_review(self, review_id, review_data):
+        """Update a review"""
+        if review_id not in self.reviews_db:
+            return None
+        review = self.reviews_db[review_id]
+        review.update(review_data)
+        return review
+
+    def delete_review(self, review_id):
+        """Delete a review"""
+        if review_id in self.reviews_db:
+            del self.reviews_db[review_id]
+            return True
+        return False
+
+    def get_reviews_by_place(self, place_id):
+        """Get all reviews for a specific place"""
+        return [
+            review for review in self.reviews_db.values()
+            if review.get('place_id') == place_id
+        ]
