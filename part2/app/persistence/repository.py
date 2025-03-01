@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
 
 class Repository(ABC):
+    """Abstract base class defining the interface for data persistence operations.
+    
+    This class defines the contract that all repository implementations must follow,
+    providing standard methods for CRUD operations on objects.
+    """
     @abstractmethod
     def add(self, obj):
         pass
@@ -27,6 +32,11 @@ class Repository(ABC):
 
 
 class InMemoryRepository(Repository):
+    """In-memory implementation of the Repository interface.
+    
+    This implementation stores objects in a dictionary that exists only for the 
+    lifetime of the application. No data persistence between application restarts.
+    """
     def __init__(self):
         self._storage = {}
 
