@@ -240,7 +240,7 @@ class TestReviewEndpoints(unittest.TestCase):
 ## **4.1 Manual Test Cases**
 ```
 | Endpoint               | Input Data                                                                 | Expected Result                                                            | Actual Result        | Test Status |
-|:------------------------|:---------------------------------------------------------------------------|:-----------------------------------------------------------------------------|:-----------------------|:-------------|
+|:------------------------:|:---------------------------------------------------------------------------:|:-----------------------------------------------------------------------------:|:-----------------------:|:-------------:|
 | POST /api/v1/users/    | { "first_name": "Jane", "last_name": "Doe", "email": "jane.doe@example.com" } | { "id": "123", "first_name": "Jane", "last_name": "Doe", "email": "jane.doe@example.com" } | Test passed           | Passed      |
 | POST /api/v1/users/    | { "first_name": "", "last_name": "", "email": "invalid-email" }            | { "error": "Invalid input data" }                                           | Test failed           | Failed      |
 
