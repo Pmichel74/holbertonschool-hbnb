@@ -80,11 +80,11 @@ class Review(BaseModel):
         Raises:
             ValueError: If the review data is invalid
         """
-        # Validation du texte
+        # Text validation
         if not review_data.get('text'):
             raise ValueError("Review text cannot be empty")
         
-        # Validation de la note
+        # Rating validation
         rating = review_data.get('rating')
         if rating is not None:
             try:
@@ -94,11 +94,11 @@ class Review(BaseModel):
             except (ValueError, TypeError):
                 raise ValueError("Rating must be an integer between 1 and 5")
         
-        # Validation de l'ID utilisateur
+        # User ID validation
         if not review_data.get('user_id') or review_data['user_id'] not in self.users_db:
             raise ValueError(f"User with ID {review_data.get('user_id')} does not exist")
         
-        # Validation de l'ID place
+        # Place ID validation
         if not review_data.get('place_id') or review_data['place_id'] not in self.places_db:
             raise ValueError(f"Place with ID {review_data.get('place_id')} does not exist")
 

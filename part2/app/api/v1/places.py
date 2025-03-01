@@ -110,7 +110,7 @@ class PlaceList(Resource):
             api.abort(400, str(e))
         except Exception as e:
             print(f"Unexpected error in POST /places/: {str(e)}")
-            api.abort(500, "An internal server error occurred")
+            api.abort(500, "Une erreur interne est survenue")
 
 @api.route('/<string:place_id>')
 @api.param('place_id', 'Unique identifier for the place')
@@ -139,19 +139,3 @@ class PlaceResource(Resource):
             return result
         except ValueError as e:
             api.abort(400, str(e))
-
-
-@api.route('/debug')
-class PlaceDebug(Resource):
-    @api.doc('debug_places')
-    def get(self):
-        """Debug endpoint for places"""
-        users = facade.list_users_debug()
-        places = facade.get_places()
-        
-        return {
-            'users_count': len(users),
-            'places_count': len(places),
-            'sample_users': users[:2] if users else [],
-            'sample_places': places[:2] if places else []
-        }

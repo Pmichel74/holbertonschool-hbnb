@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
-from app.models.base_model import BaseModel
+from .base_model import BaseModel
+from .user import User
 
 class Place(BaseModel):
-    """Class representing a place
+    """Class representing a rental place
     
     Attributes:
         id (str): Unique identifier for each place
@@ -18,33 +19,31 @@ class Place(BaseModel):
     """
     
     def __init__(self, title, owner, description="", price=0.0, latitude=0.0, longitude=0.0, **kwargs):
-        """Initialize a new place
+        """Initialize a new Place
         
         Args:
-            title (str): Title of the place
-            owner (User): Owner of the place
-            description (str, optional): Description. Defaults to empty string.
-            price (float, optional): Price per night. Defaults to 0.0.
-            latitude (float, optional): Latitude. Defaults to 0.0.
-            longitude (float, optional): Longitude. Defaults to 0.0.
+            title (str): Place title (required)
+            owner (User): User instance of who owns the place
+            description (str): Detailed description of the place
+            price (float): Price per night
+            latitude (float): Geographic latitude
+            longitude (float): Geographic longitude
         """
         super().__init__(**kwargs)
+        
+        # Validate required fields
         self.validate_title(title)
         self.validate_owner(owner)
         
+        # Set properties
         self.title = title
+        self._owner = owner  # Store the actual User instance
         self.description = description
-        self._price = 0.0
-        self._latitude = 0.0
-        self._longitude = 0.0
-        self.owner = owner
-        self.amenities = []
-        self.reviews = []
-        
-        # Use property setters for validation
-        self.price = price
+        self.price = price  # Will use the setter with validation
         self.latitude = latitude
         self.longitude = longitude
+        self.amenities = []
+        self.reviews = []
     
     @staticmethod
     def validate_title(title):
@@ -59,10 +58,22 @@ class Place(BaseModel):
         """Validate owner is a User instance"""
         if not owner:
             raise ValueError("Place must have an owner")
-        # Dans un environnement réel, vérifierez que owner est une instance de User
-        # from .user import User
-        # if not isinstance(owner, User):
-        #     raise TypeError("Owner must be a User instance")
+            
+        # Ensure owner is a User instance
+        from .user import User
+        if not isinstance(owner, User):
+            raise TypeError("Owner must be a User instance")
+    
+    @property
+    def owner(self):
+        """Get the owner User instance"""
+        return self._owner
+    
+    @owner.setter
+    def owner(self, user):
+        """Set the owner with validation"""
+        self.validate_owner(user)
+        self._owner = user
     
     @property
     def price(self):

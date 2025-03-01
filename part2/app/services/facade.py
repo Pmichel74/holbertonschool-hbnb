@@ -12,32 +12,36 @@ class Facade:
         self.amenities_db = {}
         self.reviews_db = {}
         
-        # Optionnel: Ajouter quelques utilisateurs de test
-        self._create_test_users()
+        # Comment out or remove this line:
+        # self._create_test_users()
 
     def _create_test_users(self):
-        """Créer des utilisateurs de test pour le développement"""
+        """Create test users for development"""
         test_users = [
             {
                 'first_name': 'John',
                 'last_name': 'Doe',
                 'email': 'john.doe@example.com',
-                'is_admin': True
+                'is_admin': True,
+                'is_test_user': True  # Add this flag
             },
             {
                 'first_name': 'Jane',
                 'last_name': 'Smith',
-                'email': 'jane.smith@example.com'
+                'email': 'jane.smith@example.com',
+                'is_test_user': True  # Add this flag
             }
         ]
         
-        # Créer les utilisateurs
+        # Create the users
         for user_data in test_users:
             self.create_user(user_data)
 
-    # Méthodes pour les utilisateurs
+    # User methods
     def get_users(self):
-        return list(self.users_db.values())
+        """Get all non-test users"""
+        # Filter out test users
+        return [user for user in self.users_db.values() if not user.get('is_test_user', False)]
 
     def get_user(self, user_id):
         return self.users_db.get(user_id)
@@ -53,7 +57,7 @@ class Facade:
             is_admin=user_data.get('is_admin', False)
         )
         
-        # Assurez-vous que tous les champs sont inclus dans le dictionnaire
+        # Make sure all fields are included in the dictionary
         user_dict = {
             'id': user.id,
             'first_name': user.first_name,
@@ -79,7 +83,6 @@ class Facade:
         })
         return user
 
-    # Ajoute cette méthode à ta façade
     def debug_print_user(self, user_id):
         """Debug utility to print user data"""
         if not hasattr(self, 'users_db'):
@@ -95,48 +98,54 @@ class Facade:
         for key, value in user.items():
             print(f"  {key}: {value}")
 
-    # Ajoute cette méthode à ta façade
     def list_users_debug(self):
-        """Afficher tous les utilisateurs pour débogage"""
-        print("\n--- DEBUG: LISTE DES UTILISATEURS ---")
+        """Display all users for debugging"""
+        print("\n--- DEBUG: USER LIST ---")
         if not hasattr(self, 'users_db'):
-            print("users_db n'existe pas!")
+            print("users_db doesn't exist!")
             return []
             
         if not self.users_db:
-            print("users_db est vide!")
+            print("users_db is empty!")
             return []
             
         for user_id, user in self.users_db.items():
-            print(f"Utilisateur ID: {user_id}")
-            print(f"  Prénom: {user.get('first_name', '(manquant)')}")
-            print(f"  Nom: {user.get('last_name', '(manquant)')}")
-            print(f"  Email: {user.get('email', '(manquant)')}")
+            print(f"User ID: {user_id}")
+            print(f"  First name: {user.get('first_name', '(missing)')}")
+            print(f"  Last name: {user.get('last_name', '(missing)')}")
+            print(f"  Email: {user.get('email', '(missing)')}")
             print("---")
         
         return list(self.users_db.values())
 
-    # Méthodes pour les commodités
+    # Methods for amenities
     def create_amenity(self, amenity_data):
         """Create a new amenity
         
         Args:
-            amenity_data (dict): Dictionary containing amenity data (name)
-                
+            amenity_data (dict): Amenity data containing name
+            
         Returns:
-            dict: The newly created amenity
-                
-        Raises:
-            ValueError: If the amenity data is invalid
+            dict: The created amenity with all attributes
         """
         if not amenity_data.get('name'):
-            raise ValueError("Amenity name is required")
-                
+            raise ValueError("Name is required")
+        
+        # Initialize amenities_db if needed
+        if not hasattr(self, 'amenities_db'):
+            self.amenities_db = {}
+        
+        # Create new amenity with timestamps
         amenity_id = str(uuid4())
+        current_time = datetime.now().isoformat()
+        
         amenity = {
             'id': amenity_id,
-            'name': amenity_data['name']
+            'name': amenity_data['name'],
+            'created_at': current_time,
+            'updated_at': current_time
         }
+        
         self.amenities_db[amenity_id] = amenity
         return amenity
 
@@ -169,75 +178,82 @@ class Facade:
         """Update an existing amenity
         
         Args:
-            amenity_id (str): The ID of the amenity to update
-            amenity_data (dict): New amenity data (name)
-                
-        Returns:
-            dict: The updated amenity data
-                
-        Raises:
-            ValueError: If the amenity is not found or data is invalid
-        """
-        amenity = self.get_amenity(amenity_id)  # This will raise ValueError if not found
+            amenity_id (str): ID of the amenity to update
+            amenity_data (dict): New amenity data
         
-        if not amenity_data.get('name'):
-            raise ValueError("Amenity name is required")
-                
-        amenity['name'] = amenity_data['name']
+        Returns:
+            dict: Updated amenity
+        
+        Raises:
+            ValueError: If amenity not found or data is invalid
+        """
+        # Verify amenity exists
+        if not hasattr(self, 'amenities_db') or amenity_id not in self.amenities_db:
+            raise ValueError("Amenity not found")
+        
+        # Validate name is not empty if provided
+        if 'name' in amenity_data and not amenity_data['name'].strip():
+            raise ValueError("Name is required and cannot be empty")
+        
+        amenity = self.amenities_db[amenity_id]
+        
+        # Update name if provided
+        if 'name' in amenity_data:
+            amenity['name'] = amenity_data['name']
+        
+        # Update the timestamp
+        amenity['updated_at'] = datetime.now().isoformat()
+        
         return amenity
 
     def create_place(self, place_data):
-        """Créer une nouvelle place
+        """Create a new place
         
         Args:
-            place_data (dict): Données de la place à créer
+            place_data (dict): Data for the place to create
             
         Returns:
-            dict: La place créée
+            dict: The created place
             
         Raises:
-            ValueError: Si les données sont invalides
+            ValueError: If the data is invalid
         """
+        # Title validation (required according to the requirements)
+        if not place_data.get('title'):
+            raise ValueError("Title is required")
+        
+        if len(place_data.get('title', '')) > 100:
+            raise ValueError("Title must not exceed 100 characters")
+            
+        # Owner validation - REQUIRED and MUST EXIST
+        owner_id = place_data.get('owner_id')
+        if not owner_id:
+            raise ValueError("Owner ID is required")
+            
+        # Initialize users_db if needed
+        if not hasattr(self, 'users_db'):
+            self.users_db = {}
+            
+        # Check if owner exists
+        if owner_id not in self.users_db:
+            raise ValueError(f"Owner with ID {owner_id} does not exist")
+        
+        # Price validation (positive if specified)
+        if 'price' in place_data and float(place_data['price']) < 0:
+            raise ValueError("Price cannot be negative")
+            
+        # Latitude and longitude validation
+        if 'latitude' in place_data and not -90 <= float(place_data['latitude']) <= 90:
+            raise ValueError("Latitude must be between -90 and 90")
+            
+        if 'longitude' in place_data and not -180 <= float(place_data['longitude']) <= 180:
+            raise ValueError("Longitude must be between -180 and 180")
+        
         try:
-            # Validation du titre (obligatoire selon l'énoncé)
-            if not place_data.get('title'):
-                raise ValueError("Le titre est obligatoire")
-            
-            if len(place_data.get('title', '')) > 100:
-                raise ValueError("Le titre ne doit pas dépasser 100 caractères")
-                
-            # Validation du prix (positif si spécifié)
-            if 'price' in place_data and float(place_data['price']) < 0:
-                raise ValueError("Le prix ne peut pas être négatif")
-                
-            # Validation de latitude et longitude
-            if 'latitude' in place_data and not -90 <= float(place_data['latitude']) <= 90:
-                raise ValueError("La latitude doit être comprise entre -90 et 90")
-                
-            if 'longitude' in place_data and not -180 <= float(place_data['longitude']) <= 180:
-                raise ValueError("La longitude doit être comprise entre -180 et 180")
-            
-            # Vérification du propriétaire (si spécifié)
-            owner_id = place_data.get('owner_id', '')
-            if owner_id:
-                if not hasattr(self, 'users_db'):
-                    self.users_db = {}
-                    
-                if owner_id not in self.users_db:
-                    # Option: créer automatiquement un utilisateur pour démonstration
-                    user_data = {
-                        'first_name': 'Owner',
-                        'last_name': f'Of Place',
-                        'email': f'owner_{owner_id[:8]}@example.com'
-                    }
-                    self.create_user(user_data)
-                    # Utiliser l'ID du nouvel utilisateur
-                    owner_id = list(self.users_db.keys())[-1]
-            
-            # Génération d'un nouvel ID
+            # Generate a new ID
             place_id = str(uuid4())
             
-            # Création de l'objet place
+            # Create place object
             place = {
                 'id': place_id,
                 'title': place_data.get('title', 'Untitled'),
@@ -259,21 +275,17 @@ class Facade:
             return place
         except Exception as e:
             print(f"Error in create_place: {str(e)}")
-            # Return a minimal valid response to avoid 500
-            return {
-                'id': str(uuid4()),
-                'title': 'Error occurred',
-                'description': str(e),
-                'price': 0.0,
-                'latitude': 0.0, 
-                'longitude': 0.0,
-                'owner_id': '',
-                'created_at': datetime.now().isoformat(),
-                'updated_at': datetime.now().isoformat()
-            }
+            raise ValueError(f"Failed to create place: {str(e)}")
 
     def get_place(self, place_id):
-        """Récupérer un lieu par son ID"""
+        """Get a place by its ID
+        
+        Args:
+            place_id (str): ID of the place to retrieve
+            
+        Returns:
+            dict: The place data with its relationships, or None if not found
+        """
         if not hasattr(self, 'places_db'):
             self.places_db = {}
         
@@ -319,12 +331,12 @@ class Facade:
         return place
 
     def get_all_places(self):
-        """Récupérer tous les places
+        """Get all places
         
         Returns:
-            list: Liste de tous les places avec informations de base
+            list: List of all places with basic information
         """
-        # Vérifier que places_db existe
+        # Verify that places_db exists
         if not hasattr(self, 'places_db'):
             self.places_db = {}
         
@@ -339,43 +351,32 @@ class Facade:
         ]
 
     def update_place(self, place_id, place_data):
-        """Mettre à jour un place existant
-        
-        Args:
-            place_id (str): ID du place à mettre à jour
-            place_data (dict): Nouvelles données du place
-            
-        Returns:
-            dict: Le place mis à jour, ou None si non trouvé
-            
-        Raises:
-            ValueError: Si les données sont invalides
-        """
-        # Vérifier que places_db existe
+        """Update an existing place"""
+        # Check that places_db exists
         if not hasattr(self, 'places_db'):
             self.places_db = {}
         
-        # Vérifier que le place existe
+        # Check if the place exists
         if place_id not in self.places_db:
             return None
         
         place = self.places_db[place_id]
         
-        # Valider les données mises à jour
+        # Validate updated data
         if 'price' in place_data and place_data['price'] < 0:
-            raise ValueError("Le prix ne peut pas être négatif")
+            raise ValueError("Price cannot be negative")
         
         if 'latitude' in place_data and not -90 <= place_data['latitude'] <= 90:
-            raise ValueError("La latitude doit être entre -90 et 90")
+            raise ValueError("Latitude must be between -90 and 90")
             
         if 'longitude' in place_data and not -180 <= place_data['longitude'] <= 180:
-            raise ValueError("La longitude doit être entre -180 et 180")
+            raise ValueError("Longitude must be between -180 and 180")
         
-        # Vérifier que le propriétaire existe si mis à jour
+        # Check if the owner exists if updated
         if 'owner_id' in place_data and place_data['owner_id'] not in self.users_db:
-            raise ValueError(f"Propriétaire avec ID {place_data['owner_id']} n'existe pas")
+            raise ValueError(f"Owner with ID {place_data['owner_id']} does not exist")
         
-        # Mettre à jour les attributs (sauf l'ID)
+        # Update attributes (except ID)
         for key, value in place_data.items():
             if key != 'id':
                 place[key] = value
@@ -383,23 +384,16 @@ class Facade:
         return place
 
     def delete_place(self, place_id):
-        """Supprimer une place par son ID
-        
-        Args:
-            place_id (str): ID de la place à supprimer
-            
-        Returns:
-            bool: True si supprimée, False si non trouvée
-        """
-        # Initialiser places_db si nécessaire
+        """Delete a place by its ID"""
+        # Initialize places_db if necessary
         if not hasattr(self, 'places_db'):
             self.places_db = {}
         
-        # Vérifier si la place existe
+        # Check if the place exists
         if place_id not in self.places_db:
             return False
         
-        # Supprimer la place
+        # Delete the place
         del self.places_db[place_id]
         return True
 
@@ -446,12 +440,16 @@ class Facade:
         
         # Create review object
         review_id = str(uuid4())
+        current_time = datetime.now().isoformat()
+        
         review = {
             'id': review_id,
             'text': review_data.get('text', ''),
             'rating': review_data.get('rating', 0),
             'user_id': review_data.get('user_id', ''),
-            'place_id': review_data.get('place_id', '')
+            'place_id': review_data.get('place_id', ''),
+            'created_at': current_time,
+            'updated_at': current_time
         }
         
         # Save to "database"
@@ -537,6 +535,13 @@ class Facade:
         
         review = self.reviews_db[review_id]
         
+        # Prevent changing user_id or place_id
+        if 'user_id' in review_data and review_data['user_id'] != review['user_id']:
+            raise ValueError("User ID cannot be changed in a review update")
+            
+        if 'place_id' in review_data and review_data['place_id'] != review['place_id']:
+            raise ValueError("Place ID cannot be changed in a review update")
+        
         # Validate rating if provided
         if 'rating' in review_data:
             try:
@@ -553,8 +558,11 @@ class Facade:
         
         # Update attributes (except id, user_id, place_id)
         for key, value in review_data.items():
-            if key not in ['id', 'user_id', 'place_id']:
+            if key not in ['id', 'user_id', 'place_id', 'created_at']:
                 review[key] = value
+        
+        # Update the timestamp
+        review['updated_at'] = datetime.now().isoformat()
         
         return review
 
@@ -580,23 +588,23 @@ class Facade:
         return True
 
     def get_places(self):
-        """Récupérer tous les lieux
+        """Get all places
         
         Returns:
-            list: Liste de tous les lieux
+            list: List of all places
         """
         try:
-            # Initialiser places_db si nécessaire
+            # Initialize places_db if needed
             if not hasattr(self, 'places_db'):
                 self.places_db = {}
             
-            # Retourne une liste des valeurs avec structure cohérente
+            # Returns a list of values with consistent structure
             places = []
             for place_id, place in self.places_db.items():
-                # Copie défensive
+                # Defensive copy
                 place_copy = place.copy() if isinstance(place, dict) else {}
                 
-                # S'assurer que tous les champs requis sont présents
+                # Ensure all required fields are present
                 for field in ['id', 'title', 'description', 'price', 'latitude', 'longitude', 
                             'owner_id', 'created_at', 'updated_at']:
                     if field not in place_copy:
@@ -612,5 +620,5 @@ class Facade:
             return places
             
         except Exception as e:
-            print(f"Erreur dans get_places(): {str(e)}")
-            return []  # Retourner une liste vide en cas d'erreur
+            print(f"Error in get_places(): {str(e)}")
+            return []  # Return empty list in case of error
