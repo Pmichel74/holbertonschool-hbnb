@@ -87,8 +87,8 @@ class Review:
             raise ValueError("Rating must be between 1 and 5.")
         return True
 
-2. Endpoint Tests Using cURL
-2.1 Create a User (POST /api/v1/users/)
+## **2. Endpoint Tests Using cURL
+## **2.1 Create a User (POST /api/v1/users/)
 
 Example of a valid test:
 curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{
@@ -144,7 +144,7 @@ curl -X POST "http://127.0.0.1:5000/api/v1/places/" -H "Content-Type: applicatio
     "longitude": -122.4194
 }'
 
-2.3 Create a Review (POST /api/v1/reviews/)
+## **2.3 Create a Review (POST /api/v1/reviews/)
 
 Example of a valid test:
 curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" -H "Content-Type: application/json" -d '{
@@ -206,7 +206,7 @@ class TestUserEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json)
 
-3.2 Example Test for Creating a Review
+## **3.2 Example Test for Creating a Review
 class TestReviewEndpoints(unittest.TestCase):
 
     def setUp(self):
@@ -233,16 +233,16 @@ class TestReviewEndpoints(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json)
 
-4. Test Procedure Documentation
+## **4. Test Procedure Documentation
 
-4.1 Manual Test Cases
+## **4.1 Manual Test Cases
 
 | Endpoint | Input Data | Expected Result | Actual Result | Test Status |
 |-----------|-----------|-----------|-----------|-----------|
 | POST /api/v1/users/  | { "first_name": "Jane", "last_name": "Doe", "email": "jane.doe@example.com" }  | {"id": "123", "first_name": "Jane", "last_name": "Doe", "email": "jane.doe@example.com"}  | Test passed  | Passed  |
 | POST /api/v1/users/  | { "first_name": "", "last_name": "", "email": "invalid-email" }  | {"error": "Invalid input data"}  | Test failed  | Failed |
 
-4.2 Automated Test Cases
+## **4.2 Automated Test Cases
 
 Unit tests have been executed and passed all test cases, including valid and invalid cases for each entity (user, place, review).
 
