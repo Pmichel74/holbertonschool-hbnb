@@ -37,8 +37,9 @@ class User:
         # Simple regex for email validation
         email_regex = r"(^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$)"
         return re.match(email_regex, email) is not None
-
+```
 ### **1.2 Place Model Validation**
+```
 Validated Attributes:
 title: Must not be empty.
 price: Must be a positive number.
