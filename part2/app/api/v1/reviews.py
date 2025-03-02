@@ -76,15 +76,3 @@ class ReviewResource(Resource):
             api.abort(404, f"Review with ID {review_id} not found")
         return {'message': 'Review deleted successfully'}, 200
 
-@api.route('/places/<string:place_id>/reviews')
-@api.param('place_id', 'The place identifier')
-class PlaceReviewList(Resource):
-    @api.response(200, 'List of reviews for the place retrieved successfully')
-    @api.response(404, 'Place not found')
-    def get(self, place_id):
-        """Get all reviews for a specific place"""
-        try:
-            reviews = facade.get_reviews_by_place(place_id)
-            return reviews, 200
-        except ValueError as e:
-            return {'message': str(e)}, 404

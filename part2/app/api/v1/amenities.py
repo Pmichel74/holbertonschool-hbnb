@@ -13,7 +13,8 @@ amenity_response_model = api.model('AmenityResponse', {
     'id': fields.String(description='Unique identifier for the amenity'),
     'name': fields.String(description='Name of the amenity'),
     'created_at': fields.DateTime(description='Timestamp when the amenity was created'),
-    'updated_at': fields.DateTime(description='Timestamp when the amenity was last updated')
+    'updated_at': fields.DateTime(description='Timestamp when the amenity was last updated'),
+    'places': fields.List(fields.String(description='Place IDs with this amenity'))
 })
 
 @api.route('/')
