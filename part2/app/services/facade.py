@@ -1,4 +1,3 @@
-import uuid
 from uuid import uuid4
 from datetime import datetime
 from app.models.place import Place
@@ -9,12 +8,9 @@ class Facade:
     def __init__(self):
         """Initialize databases"""
         self.users_db = {}
-        self.cities_db = {}
-        self.states_db = {}
         self.places_db = {}
         self.amenities_db = {}
         self.reviews_db = {}
-        self.place_amenities = {}  # For many-to-many relationship between places and amenities
         
         # Comment out or remove this line:
         # self._create_test_users()
@@ -53,12 +49,6 @@ class Facade:
     def create_user(self, user_data):
         """Create a new user"""
         # Validation code...
-        
-        # Check email uniqueness (new verification)
-        email = user_data.get('email', '').lower()  # Normalize to lowercase
-        for user_id, existing_user in self.users_db.items():
-            if existing_user.get('email', '').lower() == email:
-                raise ValueError(f"Email {email} is already registered")
         
         user = User(
             first_name=user_data['first_name'],
@@ -154,7 +144,7 @@ class Facade:
             'name': amenity_data['name'],
             'created_at': current_time,
             'updated_at': current_time,
-            'places': []  # Empty list of initially associated places
+            'places': []  # Liste vide de places associées initialement
         }
         
         self.amenities_db[amenity_id] = amenity
@@ -183,11 +173,11 @@ class Facade:
         Returns:
             list: List of all amenities
         """
-        # Ensure amenities_db exists
+        # S'assurer que amenities_db existe
         if not hasattr(self, 'amenities_db'):
             self.amenities_db = {}
         
-        # Ensure each amenity has a places field
+        # S'assurer que chaque amenity a un champ places
         for amenity_id, amenity in self.amenities_db.items():
             if 'places' not in amenity:
                 amenity['places'] = []
@@ -224,7 +214,7 @@ class Facade:
         # Update the timestamp
         amenity['updated_at'] = datetime.now().isoformat()
         
-        # Ensure the places field exists
+        # S'assurer que le champ places existe
         if 'places' not in amenity:
             amenity['places'] = []
         
@@ -274,18 +264,18 @@ class Facade:
             raise ValueError("Longitude must be between -180 and 180")
         
         try:
-            # Extract the amenities
+            # Extraire les amenities
             amenity_ids = place_data.get('amenities', [])
             
-            # Ensure amenities_db exists
+            # S'assurer que amenities_db existe
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
-            # Transform IDs into complete amenity objects
+            # Transformer les IDs en objets amenities complets
             amenities_objects = []
             for amenity_id in amenity_ids:
                 if amenity_id in self.amenities_db:
-                    # Retrieve the amenity name
+                    # Récupérer le nom de l'amenity
                     amenity = self.amenities_db[amenity_id]
                     amenities_objects.append({
                         'id': amenity_id,
@@ -307,7 +297,7 @@ class Facade:
                 'latitude': float(place_data.get('latitude', 0.0)),
                 'longitude': float(place_data.get('longitude', 0.0)),
                 'owner_id': owner_id,  # Keep this for internal reference
-                'amenities': amenities_objects,  # To display the full name of amenities
+                'amenities': amenities_objects,  # Pour afficher le nom complet des amenities
                 'created_at': datetime.now().isoformat(),
                 'updated_at': datetime.now().isoformat(),
                 # Add owner details for API response
@@ -331,21 +321,58 @@ class Facade:
             raise ValueError(f"Failed to create place: {str(e)}")
 
     def get_place(self, place_id):
+        """Get a place by its ID"""
+        if not hasattr(self, 'places_db'):
+            self.places_db = {}
+        
         if place_id not in self.places_db:
             return None
         
         place = self.places_db[place_id].copy()
         
-        # Add amenities to place if they exist
-        if place_id in self.place_amenities:
-            place['amenities'] = [
-                self.amenities_db[amenity_id]
-                for amenity_id in self.place_amenities[place_id]
-                if amenity_id in self.amenities_db
-            ]
+        # Handle owner like you already do
+        owner_id = place.get('owner_id')
+        if owner_id and owner_id in self.users_db:
+            owner = self.users_db[owner_id]
+            place['owner'] = {
+                'id': owner_id,
+                'first_name': owner.get('first_name', '(missing)'),
+                'last_name': owner.get('last_name', '(missing)'),
+                'email': owner.get('email', '(missing)')
+            }
         else:
-            place['amenities'] = []
-            
+            place['owner'] = {
+                'id': owner_id or '',
+                'first_name': '(unknown)',
+                'last_name': '(unknown)',
+                'email': '(unknown)'
+            }
+        
+        # NOUVEAU CODE: Transformer les IDs d'amenities en objets complets
+        amenity_ids = place.get('amenities', [])
+        amenities_objects = []
+        
+        # S'assurer que amenities_db existe
+        if not hasattr(self, 'amenities_db'):
+            self.amenities_db = {}
+        
+        # If place is a dictionary, use dictionary access instead of attribute access
+        if isinstance(place, dict):
+            place_amenity_id = place.get('amenity_id')
+        else:
+            place_amenity_id = place.amenity_id
+
+        # Now compare using the correctly accessed amenity_id
+        for amenity in self.amenities_db:
+            if isinstance(amenity, dict):
+                amenity_id = amenity.get('id')
+            else:
+                amenity_id = amenity
+
+            if amenity_id == place_amenity_id:
+                # Do something with the amenity
+                pass
+        
         return place
 
     def get_all_places(self):
@@ -354,7 +381,7 @@ class Facade:
         Returns:
             list: List of all places with complete information
         """
-        # Reuse get_places() which already works correctly
+        # Réutiliser get_places() qui fonctionne déjà correctement
         return self.get_places()
 
     def update_place(self, place_id, place_data):
@@ -402,22 +429,22 @@ class Facade:
                 'email': owner.get('email', '')
             }
         
-        # Handle amenities if they are updated
+        # Gérer les amenities si elles sont mises à jour
         if 'amenities' in place_data:
-            # Ensure amenities_db exists
+            # S'assurer que amenities_db existe
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
-            # Transform amenity IDs into complete objects for API response
+            # Transformer les IDs amenities en objets complets pour la réponse API
             amenity_ids = place_data['amenities']
             amenities_objects = []
             
             for amenity_id in amenity_ids:
                 if amenity_id in self.amenities_db:
-                    # Retrieve the amenity from the database
+                    # Récupérer l'amenity de la base de données
                     amenity = self.amenities_db[amenity_id]
                     
-                    # Create a complete object for API response
+                    # Créer un objet complet pour la réponse API
                     amenity_object = {
                         'id': amenity_id,
                         'name': amenity.get('name', 'Unknown amenity'),
@@ -427,13 +454,13 @@ class Facade:
                     
                     amenities_objects.append(amenity_object)
                     
-                    # Update cross-references
+                    # Mettre à jour les références croisées
                     if 'places' not in amenity:
                         amenity['places'] = []
                     if place_id not in amenity['places']:
                         amenity['places'].append(place_id)
             
-            # Update place with amenity objects
+            # Mettre à jour place avec les objets amenities
             place['amenities'] = amenities_objects
         
         return place
@@ -653,7 +680,7 @@ class Facade:
             if not hasattr(self, 'places_db'):
                 self.places_db = {}
             
-            # Ensure amenities_db exists
+            # S'assurer que amenities_db existe
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
@@ -674,7 +701,7 @@ class Facade:
                         else:
                             place_copy[field] = ''
                 
-                # Add owner information
+                # Ajouter les informations du propriétaire
                 owner_id = place_copy.get('owner_id')
                 if owner_id and owner_id in self.users_db:
                     owner = self.users_db[owner_id]
@@ -692,17 +719,17 @@ class Facade:
                         'email': '(unknown)'
                     }
                 
-                # Handle amenities
-                # If place_copy['amenities'] is already a list of objects with id and name,
-                # we can keep it as is
+                # Gérer les amenities
+                # Si place_copy['amenities'] est déjà une liste d'objets avec id et name,
+                # nous pouvons la conserver telle quelle
                 if isinstance(place_copy.get('amenities'), list):
                     amenities_in_place = place_copy.get('amenities', [])
                     
-                    # If the elements of the list are dictionaries with 'id' and 'name', keep them
+                    # Si les éléments de la liste sont des dictionnaires avec 'id' et 'name', on les conserve
                     if all(isinstance(a, dict) and 'id' in a and 'name' in a for a in amenities_in_place):
-                        # Already in the correct format, do nothing
+                        # Déjà au bon format, ne rien faire
                         pass
-                    # If they are ID strings, convert them to objects
+                    # Si ce sont des ID (chaînes), les convertir en objets
                     elif all(isinstance(a, str) for a in amenities_in_place):
                         amenities_objects = []
                         for amenity_id in amenities_in_place:
@@ -713,7 +740,7 @@ class Facade:
                                     'name': amenity.get('name', 'Unknown amenity')
                                 })
                         place_copy['amenities'] = amenities_objects
-                    # Otherwise, initialize to an empty list
+                    # Sinon, initialiser à une liste vide
                     else:
                         place_copy['amenities'] = []
                 else:
@@ -726,5 +753,5 @@ class Facade:
         except Exception as e:
             print(f"Error in get_places(): {str(e)}")
             import traceback
-            traceback.print_exc()  # Display the complete call stack
+            traceback.print_exc()  # Affiche la pile d'appel complète
             return []  # Return empty list in case of error
