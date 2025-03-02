@@ -98,6 +98,18 @@
 **Résultat attendu:** 201 Created
 
 #### Test 2: Création d'un lieu avec un prix négatif
+**Endpoint:** `POST /api/v1/places/`
+**Données d'entrée:**
+```json
+{
+    "title": "Problematic Place",
+    "description": "Invalid price",
+    "price": -50.0,
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "owner_id": "user-id"
+}
+```
 **Résultat attendu:** 400 Bad Request
 
 #### Test 3: Récupération de tous les lieux
@@ -116,6 +128,18 @@
 **Résultat attendu:** 404 Not Found
 
 #### Test 8: Création d'un lieu avec des coordonnées invalides
+**Endpoint:** `POST /api/v1/places/`
+**Données d'entrée:**
+```json
+{
+    "title": "Invalid Place",
+    "description": "Bad coordinates",
+    "price": 100.0,
+    "latitude": 95.0,
+    "longitude": -122.4194,
+    "owner_id": "user-id"
+}
+```
 **Résultat attendu:** 400 Bad Request
 
 ---
@@ -123,9 +147,21 @@
 ### Amenities
 
 #### Test 1: Création d'une commodité valide
+**Données d'entrée:**
+```json
+{
+    "name": "High-speed WiFi"
+}
+```
 **Résultat attendu:** 201 Created
 
 #### Test 2: Création d'une commodité avec un nom vide
+**Données d'entrée:**
+```json
+{
+    "name": ""
+}
+```
 **Résultat attendu:** 400 Bad Request
 
 #### Test 3: Récupération de toutes les commodités
@@ -145,6 +181,15 @@
 ### Reviews
 
 #### Test 1: Création d'un avis valide
+**Données d'entrée:**
+```json
+{
+    "text": "Great place to stay!",
+    "rating": 5,
+    "place_id": "place-id",
+    "user_id": "user-id"
+}
+```
 **Résultat attendu:** 201 Created
 
 #### Test 2: Création d'un avis avec un texte vide
@@ -157,10 +202,26 @@
 **Résultat attendu:** 200 OK
 
 #### Test 5: Mise à jour d'un avis
+**Données d'entrée:**
+```json
+{
+    "text": "This place was even better!",
+    "rating": 5
+}
+```
 **Résultat attendu:** 200 OK
 
 #### Test 6: Suppression d'un avis
 **Résultat attendu:** 200 OK
 
 #### Test 7: Création d'un avis avec une note invalide
+**Données d'entrée:**
+```json
+{
+    "text": "This place was okay",
+    "rating": 6,
+    "place_id": "place-id",
+    "user_id": "user-id"
+}
+```
 **Résultat attendu:** 400 Bad Request
