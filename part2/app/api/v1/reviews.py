@@ -76,6 +76,7 @@ class ReviewResource(Resource):
             api.abort(404, f"Review with ID {review_id} not found")
         return {'message': 'Review deleted successfully'}, 200
 
+<<<<<<< HEAD
 @api.route('/places/<string:place_id>/reviews')
 @api.param('place_id', 'The place identifier')
 class PlaceReviewList(Resource):
@@ -88,3 +89,5 @@ class PlaceReviewList(Resource):
             return reviews, 200
         except ValueError as e:
             return {'message': str(e)}, 404
+=======
+>>>>>>> DevRay

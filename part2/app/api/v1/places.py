@@ -59,6 +59,15 @@ place_model = api.model('Place', {
         default=0.0,
         description='Longitude (-180 to 180)',
         example=5.369780
+<<<<<<< HEAD
+=======
+    ),
+    'amenities': fields.List(
+        fields.String,
+        required=False,
+        description='List of amenity IDs',
+        example=['123e4567-e89b-12d3-a456-426614174000']
+>>>>>>> DevRay
     )
 })
 
@@ -85,7 +94,12 @@ place_response_model = api.model('PlaceResponse', {
     'price': fields.Float(description='Price per night'),
     'latitude': fields.Float(description='Place latitude'),
     'longitude': fields.Float(description='Place longitude'),
+<<<<<<< HEAD
     'owner_id': fields.String(description='Owner ID'),
+=======
+    'amenities': fields.List(fields.Nested(amenity_model), description='List of amenities'),
+    'owner': fields.Nested(user_model, description='Place owner'),
+>>>>>>> DevRay
     'created_at': fields.DateTime(description='Creation date'),
     'updated_at': fields.DateTime(description='Last update date')
 })
@@ -139,3 +153,19 @@ class PlaceResource(Resource):
             return result
         except ValueError as e:
             api.abort(400, str(e))
+<<<<<<< HEAD
+=======
+
+@api.route('/<string:place_id>/reviews')
+@api.param('place_id', 'The place identifier')
+class PlaceReviewList(Resource):
+    @api.response(200, 'List of reviews for the place retrieved successfully')
+    @api.response(404, 'Place not found')
+    def get(self, place_id):
+        """Get all reviews for a specific place"""
+        try:
+            reviews = facade.get_reviews_by_place(place_id)
+            return reviews, 200
+        except ValueError as e:
+            return {'message': str(e)}, 404
+>>>>>>> DevRay

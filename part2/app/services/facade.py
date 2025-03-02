@@ -50,6 +50,15 @@ class Facade:
         """Create a new user"""
         # Validation code...
         
+<<<<<<< HEAD
+=======
+        # Check email uniqueness (new verification)
+        email = user_data.get('email', '').lower()  # Normalize to lowercase
+        for user_id, existing_user in self.users_db.items():
+            if existing_user.get('email', '').lower() == email:
+                raise ValueError(f"Email {email} is already registered")
+        
+>>>>>>> DevRay
         user = User(
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
@@ -143,7 +152,12 @@ class Facade:
             'id': amenity_id,
             'name': amenity_data['name'],
             'created_at': current_time,
+<<<<<<< HEAD
             'updated_at': current_time
+=======
+            'updated_at': current_time,
+            'places': []  # Empty list of initially associated places
+>>>>>>> DevRay
         }
         
         self.amenities_db[amenity_id] = amenity
@@ -172,6 +186,15 @@ class Facade:
         Returns:
             list: List of all amenities
         """
+        # Ensure amenities_db exists
+        if not hasattr(self, 'amenities_db'):
+            self.amenities_db = {}
+        
+        # Ensure each amenity has a places field
+        for amenity_id, amenity in self.amenities_db.items():
+            if 'places' not in amenity:
+                amenity['places'] = []
+        
         return list(self.amenities_db.values())
 
     def update_amenity(self, amenity_id, amenity_data):
@@ -203,6 +226,13 @@ class Facade:
         
         # Update the timestamp
         amenity['updated_at'] = datetime.now().isoformat()
+<<<<<<< HEAD
+=======
+        
+        # Ensure the places field exists
+        if 'places' not in amenity:
+            amenity['places'] = []
+>>>>>>> DevRay
         
         return amenity
 
@@ -250,9 +280,36 @@ class Facade:
             raise ValueError("Longitude must be between -180 and 180")
         
         try:
+<<<<<<< HEAD
             # Generate a new ID
             place_id = str(uuid4())
             
+=======
+            # Extract the amenities
+            amenity_ids = place_data.get('amenities', [])
+            
+            # Ensure amenities_db exists
+            if not hasattr(self, 'amenities_db'):
+                self.amenities_db = {}
+            
+            # Transform IDs into complete amenity objects
+            amenities_objects = []
+            for amenity_id in amenity_ids:
+                if amenity_id in self.amenities_db:
+                    # Retrieve the amenity name
+                    amenity = self.amenities_db[amenity_id]
+                    amenities_objects.append({
+                        'id': amenity_id,
+                        'name': amenity.get('name', 'Unknown amenity')
+                    })
+            
+            # Generate a new ID
+            place_id = str(uuid4())
+            
+            # Get owner information
+            owner = self.users_db[owner_id]
+            
+>>>>>>> DevRay
             # Create place object
             place = {
                 'id': place_id,
@@ -261,9 +318,23 @@ class Facade:
                 'price': float(place_data.get('price', 0.0)),
                 'latitude': float(place_data.get('latitude', 0.0)),
                 'longitude': float(place_data.get('longitude', 0.0)),
+<<<<<<< HEAD
                 'owner_id': owner_id,
                 'created_at': datetime.now().isoformat(),
                 'updated_at': datetime.now().isoformat()
+=======
+                'owner_id': owner_id,  # Keep this for internal reference
+                'amenities': amenities_objects,  # To display the full name of amenities
+                'created_at': datetime.now().isoformat(),
+                'updated_at': datetime.now().isoformat(),
+                # Add owner details for API response
+                'owner': {
+                    'id': owner_id,
+                    'first_name': owner.get('first_name', ''),
+                    'last_name': owner.get('last_name', ''),
+                    'email': owner.get('email', '')
+                }
+>>>>>>> DevRay
             }
             
             # Ensure places_db exists
@@ -278,6 +349,7 @@ class Facade:
             raise ValueError(f"Failed to create place: {str(e)}")
 
     def get_place(self, place_id):
+<<<<<<< HEAD
         """Get a place by its ID
         
         Args:
@@ -356,6 +428,68 @@ class Facade:
         if not hasattr(self, 'places_db'):
             self.places_db = {}
         
+=======
+        """Get a place by its ID"""
+        if not hasattr(self, 'places_db'):
+            self.places_db = {}
+        
+        if place_id not in self.places_db:
+            return None
+        
+        place = self.places_db[place_id].copy()
+        
+        # Handle owner like you already do
+        owner_id = place.get('owner_id')
+        if owner_id and owner_id in self.users_db:
+            owner = self.users_db[owner_id]
+            place['owner'] = {
+                'id': owner_id,
+                'first_name': owner.get('first_name', '(missing)'),
+                'last_name': owner.get('last_name', '(missing)'),
+                'email': owner.get('email', '(missing)')
+            }
+        else:
+            place['owner'] = {
+                'id': owner_id or '',
+                'first_name': '(unknown)',
+                'last_name': '(unknown)',
+                'email': '(unknown)'
+            }
+        
+        # NEW CODE: Transform amenity IDs into complete objects
+        amenity_ids = place.get('amenities', [])
+        amenities_objects = []
+        
+        # Ensure amenities_db exists
+        if not hasattr(self, 'amenities_db'):
+            self.amenities_db = {}
+        
+        # Retrieve complete amenity objects
+        for amenity_id in amenity_ids:
+            if amenity_id in self.amenities_db:
+                amenities_objects.append(self.amenities_db[amenity_id])
+        
+        # Replace the ID list with the object list
+        place['amenities'] = amenities_objects
+        
+        return place
+
+    def get_all_places(self):
+        """Get all places with full details
+        
+        Returns:
+            list: List of all places with complete information
+        """
+        # Reuse get_places() which already works correctly
+        return self.get_places()
+
+    def update_place(self, place_id, place_data):
+        """Update an existing place"""
+        # Check that places_db exists
+        if not hasattr(self, 'places_db'):
+            self.places_db = {}
+        
+>>>>>>> DevRay
         # Check if the place exists
         if place_id not in self.places_db:
             return None
@@ -372,7 +506,12 @@ class Facade:
         if 'longitude' in place_data and not -180 <= place_data['longitude'] <= 180:
             raise ValueError("Longitude must be between -180 and 180")
         
+<<<<<<< HEAD
         # Check if the owner exists if updated
+=======
+        # Check if owner_id is being updated and if the new owner exists
+        owner_id = place_data.get('owner_id', place.get('owner_id'))
+>>>>>>> DevRay
         if 'owner_id' in place_data and place_data['owner_id'] not in self.users_db:
             raise ValueError(f"Owner with ID {place_data['owner_id']} does not exist")
         
@@ -380,6 +519,53 @@ class Facade:
         for key, value in place_data.items():
             if key != 'id':
                 place[key] = value
+        
+        # Update timestamp
+        place['updated_at'] = datetime.now().isoformat()
+        
+        # Update owner information after possible owner_id change
+        if owner_id and owner_id in self.users_db:
+            owner = self.users_db[owner_id]
+            place['owner'] = {
+                'id': owner_id,
+                'first_name': owner.get('first_name', ''),
+                'last_name': owner.get('last_name', ''),
+                'email': owner.get('email', '')
+            }
+        
+        # Handle amenities if they are updated
+        if 'amenities' in place_data:
+            # Ensure amenities_db exists
+            if not hasattr(self, 'amenities_db'):
+                self.amenities_db = {}
+            
+            # Transform amenity IDs into complete objects for API response
+            amenity_ids = place_data['amenities']
+            amenities_objects = []
+            
+            for amenity_id in amenity_ids:
+                if amenity_id in self.amenities_db:
+                    # Retrieve the amenity from the database
+                    amenity = self.amenities_db[amenity_id]
+                    
+                    # Create a complete object for API response
+                    amenity_object = {
+                        'id': amenity_id,
+                        'name': amenity.get('name', 'Unknown amenity'),
+                        'created_at': amenity.get('created_at', datetime.now().isoformat()),
+                        'updated_at': amenity.get('updated_at', datetime.now().isoformat())
+                    }
+                    
+                    amenities_objects.append(amenity_object)
+                    
+                    # Update cross-references
+                    if 'places' not in amenity:
+                        amenity['places'] = []
+                    if place_id not in amenity['places']:
+                        amenity['places'].append(place_id)
+            
+            # Update place with amenity objects
+            place['amenities'] = amenities_objects
         
         return place
 
@@ -591,13 +777,24 @@ class Facade:
         """Get all places
         
         Returns:
+<<<<<<< HEAD
             list: List of all places
+=======
+            list: List of all places with detailed amenities
+>>>>>>> DevRay
         """
         try:
             # Initialize places_db if needed
             if not hasattr(self, 'places_db'):
                 self.places_db = {}
             
+<<<<<<< HEAD
+=======
+            # Ensure amenities_db exists
+            if not hasattr(self, 'amenities_db'):
+                self.amenities_db = {}
+            
+>>>>>>> DevRay
             # Returns a list of values with consistent structure
             places = []
             for place_id, place in self.places_db.items():
@@ -615,10 +812,63 @@ class Facade:
                         else:
                             place_copy[field] = ''
                 
+<<<<<<< HEAD
+=======
+                # Add owner information
+                owner_id = place_copy.get('owner_id')
+                if owner_id and owner_id in self.users_db:
+                    owner = self.users_db[owner_id]
+                    place_copy['owner'] = {
+                        'id': owner_id,
+                        'first_name': owner.get('first_name', ''),
+                        'last_name': owner.get('last_name', ''),
+                        'email': owner.get('email', '')
+                    }
+                else:
+                    place_copy['owner'] = {
+                        'id': owner_id or '',
+                        'first_name': '(unknown)',
+                        'last_name': '(unknown)',
+                        'email': '(unknown)'
+                    }
+                
+                # Handle amenities
+                # If place_copy['amenities'] is already a list of objects with id and name,
+                # we can keep it as is
+                if isinstance(place_copy.get('amenities'), list):
+                    amenities_in_place = place_copy.get('amenities', [])
+                    
+                    # If the elements of the list are dictionaries with 'id' and 'name', keep them
+                    if all(isinstance(a, dict) and 'id' in a and 'name' in a for a in amenities_in_place):
+                        # Already in the correct format, do nothing
+                        pass
+                    # If they are ID strings, convert them to objects
+                    elif all(isinstance(a, str) for a in amenities_in_place):
+                        amenities_objects = []
+                        for amenity_id in amenities_in_place:
+                            if amenity_id in self.amenities_db:
+                                amenity = self.amenities_db[amenity_id]
+                                amenities_objects.append({
+                                    'id': amenity_id,
+                                    'name': amenity.get('name', 'Unknown amenity')
+                                })
+                        place_copy['amenities'] = amenities_objects
+                    # Otherwise, initialize to an empty list
+                    else:
+                        place_copy['amenities'] = []
+                else:
+                    place_copy['amenities'] = []
+                
+>>>>>>> DevRay
                 places.append(place_copy)
             
             return places
             
         except Exception as e:
             print(f"Error in get_places(): {str(e)}")
+<<<<<<< HEAD
+=======
+            import traceback
+            traceback.print_exc()  # Display the complete call stack
+>>>>>>> DevRay
             return []  # Return empty list in case of error

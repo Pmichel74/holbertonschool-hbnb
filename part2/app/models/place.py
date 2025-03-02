@@ -136,7 +136,12 @@ class Place(BaseModel):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
+<<<<<<< HEAD
             'owner_id': self.owner.id if self.owner else None
+=======
+            'owner_id': self.owner.id if self.owner else None,
+            'amenities': [amenity.id for amenity in self.amenities] if self.amenities else []
+>>>>>>> DevRay
         })
         return place_dict
 
