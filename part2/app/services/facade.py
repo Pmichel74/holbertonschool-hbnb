@@ -1,3 +1,4 @@
+import uuid
 from uuid import uuid4
 from datetime import datetime
 from app.models.place import Place
@@ -8,9 +9,12 @@ class Facade:
     def __init__(self):
         """Initialize databases"""
         self.users_db = {}
+        self.cities_db = {}
+        self.states_db = {}
         self.places_db = {}
         self.amenities_db = {}
         self.reviews_db = {}
+        self.place_amenities = {}  # For many-to-many relationship between places and amenities
         
         # Comment out or remove this line:
         # self._create_test_users()
@@ -327,49 +331,21 @@ class Facade:
             raise ValueError(f"Failed to create place: {str(e)}")
 
     def get_place(self, place_id):
-        """Get a place by its ID"""
-        if not hasattr(self, 'places_db'):
-            self.places_db = {}
-        
         if place_id not in self.places_db:
             return None
         
         place = self.places_db[place_id].copy()
         
-        # Handle owner like you already do
-        owner_id = place.get('owner_id')
-        if owner_id and owner_id in self.users_db:
-            owner = self.users_db[owner_id]
-            place['owner'] = {
-                'id': owner_id,
-                'first_name': owner.get('first_name', '(missing)'),
-                'last_name': owner.get('last_name', '(missing)'),
-                'email': owner.get('email', '(missing)')
-            }
+        # Add amenities to place if they exist
+        if place_id in self.place_amenities:
+            place['amenities'] = [
+                self.amenities_db[amenity_id]
+                for amenity_id in self.place_amenities[place_id]
+                if amenity_id in self.amenities_db
+            ]
         else:
-            place['owner'] = {
-                'id': owner_id or '',
-                'first_name': '(unknown)',
-                'last_name': '(unknown)',
-                'email': '(unknown)'
-            }
-        
-        # NEW CODE: Transform amenity IDs into complete objects
-        amenity_ids = place.get('amenities', [])
-        amenities_objects = []
-        
-        # Ensure amenities_db exists
-        if not hasattr(self, 'amenities_db'):
-            self.amenities_db = {}
-        
-        # Retrieve complete amenity objects
-        for amenity_id in amenity_ids:
-            if amenity_id in self.amenities_db:
-                amenities_objects.append(self.amenities_db[amenity_id])
-        
-        # Replace the ID list with the object list
-        place['amenities'] = amenities_objects
-        
+            place['amenities'] = []
+            
         return place
 
     def get_all_places(self):
