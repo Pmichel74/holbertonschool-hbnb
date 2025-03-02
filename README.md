@@ -240,19 +240,35 @@ class TestReviewEndpoints(unittest.TestCase):
 
 ### **4.1 Manual Test Cases**
 
-| Test Case | Endpoint | Input Data | Expected Result | Actual Result | Status |
-|-----------|----------|------------|-----------------|---------------|---------|
-| TC-001 | POST /api/v1/users/ | `{"first_name": "Jane", "last_name": "Doe", "email": "jane.doe@example.com"}` | Status: 201, Valid user created | As expected | ✅ Pass |
-| TC-002 | POST /api/v1/users/ | `{"first_name": "", "last_name": "", "email": "invalid-email"}` | Status: 400, Error message returned | As expected | ✅ Pass |
-| TC-003 | POST /api/v1/places/ | `{"title": "Beach House", "price": 150.0, "latitude": 25.7617, "longitude": -80.1918}` | Status: 201, Valid place created | As expected | ✅ Pass |
-| TC-004 | POST /api/v1/reviews/ | `{"text": "Wonderful stay!", "rating": 5, "user_id": "123", "place_id": "124"}` | Status: 201, Valid review created | As expected | ✅ Pass |
+| Test Case | Endpoint | Input Data | Expected Result | Status |
+|-----------|----------|------------|-----------------|---------|
+| TC-001 | POST /api/v1/users | `{"email": "user@example.com", "password": "strongpass123", "first_name": "John", "last_name": "Doe"}` | Created: 201 | ✅ Pass |
+| TC-002 | POST /api/v1/places | `{"name": "Cozy Cabin", "description": "A peaceful retreat", "number_rooms": 2, "number_bathrooms": 1, "max_guest": 4, "price_by_night": 100, "latitude": 40.7128, "longitude": -74.0060}` | Created: 201 | ✅ Pass |
+| TC-003 | POST /api/v1/reviews | `{"text": "Great stay!", "place_id": "place-uuid", "user_id": "user-uuid"}` | Created: 201 | ✅ Pass |
+| TC-004 | GET /api/v1/users | N/A | Success: 200, List of users | ✅ Pass |
+| TC-005 | GET /api/v1/places | N/A | Success: 200, List of places | ✅ Pass |
+| TC-006 | GET /api/v1/reviews | N/A | Success: 200, List of reviews | ✅ Pass |
 
-### **4.2 Automated Test Cases**
+### **4.2 Authentication Tests**
 
-All unit tests have been executed successfully:
-- ✅ User creation validation tests
-- ✅ Place creation validation tests  
-- ✅ Review creation validation tests
+| Test Case | Endpoint | Input Data | Expected Result | Status |
+|-----------|----------|------------|-----------------|---------|
+| TC-007 | POST /api/v1/auth/login | `{"email": "user@example.com", "password": "strongpass123"}` | Success: 200, JWT Token | ✅ Pass |
+| TC-008 | POST /api/v1/auth/register | `{"email": "new@example.com", "password": "newpass123", "first_name": "Jane", "last_name": "Smith"}` | Created: 201 | ✅ Pass |
+
+### **4.3 Automated Test Cases**
+
+Our test suite includes comprehensive unit tests for:
+- ✅ User authentication and registration
+- ✅ CRUD operations for Places
+- ✅ CRUD operations for Reviews
+- ✅ Input validation and error handling
+- ✅ API endpoint security
+
+All tests can be run using:
+```bash
+python3 -m unittest discover tests
+```
 ````
 Unit tests have been executed and passed all test cases, including valid and invalid cases for each entity (user, place, review).
 
