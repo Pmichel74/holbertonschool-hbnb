@@ -1,7 +1,7 @@
 # API Testing Report - AirBnB Clone Project
 **Date**: March 3, 2025  
 **Version**: 1.0  
-**Author**: Technical Team  
+**Author**: Michel, Allaoui, Jaille
 **Project**: AirBnB Clone REST API
 
 ## Table of Contents
