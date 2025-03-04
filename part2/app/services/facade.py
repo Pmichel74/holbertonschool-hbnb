@@ -264,18 +264,18 @@ class Facade:
             raise ValueError("Longitude must be between -180 and 180")
         
         try:
-            # Extraire les amenities
+            # Extract the amenities
             amenity_ids = place_data.get('amenities', [])
             
-            # S'assurer que amenities_db existe
+            # Make sure amenities_db exists
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
-            # Transformer les IDs en objets amenities complets
+            # Transform IDs into complete amenity objects
             amenities_objects = []
             for amenity_id in amenity_ids:
                 if amenity_id in self.amenities_db:
-                    # Récupérer le nom de l'amenity
+                    # Get the amenity name
                     amenity = self.amenities_db[amenity_id]
                     amenities_objects.append({
                         'id': amenity_id,
