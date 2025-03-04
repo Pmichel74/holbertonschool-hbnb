@@ -6,49 +6,49 @@ from app.models.amenity import Amenity
 
 class Facade:
     def __init__(self):
-        """Initialize databases"""
+        """Initialiser les bases de données"""
         self.users_db = {}
         self.places_db = {}
         self.amenities_db = {}
         self.reviews_db = {}
         
-        # Comment out or remove this line:
+        # Commenter ou supprimer cette ligne :
         # self._create_test_users()
 
     def _create_test_users(self):
-        """Create test users for development"""
+        """Créer des utilisateurs de test pour le développement"""
         test_users = [
             {
                 'first_name': 'John',
                 'last_name': 'Doe',
                 'email': 'john.doe@example.com',
                 'is_admin': True,
-                'is_test_user': True  # Add this flag
+                'is_test_user': True  # Ajouter ce flag
             },
             {
                 'first_name': 'Jane',
                 'last_name': 'Smith',
                 'email': 'jane.smith@example.com',
-                'is_test_user': True  # Add this flag
+                'is_test_user': True  # Ajouter ce flag
             }
         ]
         
-        # Create the users
+        # Créer les utilisateurs
         for user_data in test_users:
             self.create_user(user_data)
 
-    # User methods
+    # Méthodes utilisateur
     def get_users(self):
-        """Get all non-test users"""
-        # Filter out test users
+        """Obtenir tous les utilisateurs non-test"""
+        # Filtrer les utilisateurs de test
         return [user for user in self.users_db.values() if not user.get('is_test_user', False)]
 
     def get_user(self, user_id):
         return self.users_db.get(user_id)
 
     def create_user(self, user_data):
-        """Create a new user"""
-        # Validation code...
+        """Créer un nouvel utilisateur"""
+        # Code de validation...
         
         user = User(
             first_name=user_data['first_name'],
@@ -57,7 +57,7 @@ class Facade:
             is_admin=user_data.get('is_admin', False)
         )
         
-        # Make sure all fields are included in the dictionary
+        # S'assurer que tous les champs sont inclus dans le dictionnaire
         user_dict = {
             'id': user.id,
             'first_name': user.first_name,
@@ -84,29 +84,29 @@ class Facade:
         return user
 
     def debug_print_user(self, user_id):
-        """Debug utility to print user data"""
+        """Utilitaire de débogage pour imprimer les données utilisateur"""
         if not hasattr(self, 'users_db'):
-            print("users_db doesn't exist!")
+            print("users_db n'existe pas !")
             return
             
         if user_id not in self.users_db:
-            print(f"User {user_id} not found in users_db!")
+            print(f"Utilisateur {user_id} non trouvé dans users_db !")
             return
             
         user = self.users_db[user_id]
-        print(f"User {user_id} data:")
+        print(f"Données de l'utilisateur {user_id} :")
         for key, value in user.items():
             print(f"  {key}: {value}")
 
     def list_users_debug(self):
-        """Display all users for debugging"""
-        print("\n--- DEBUG: USER LIST ---")
+        """Afficher tous les utilisateurs pour le débogage"""
+        print("\n--- DÉBOGAGE : LISTE DES UTILISATEURS ---")
         if not hasattr(self, 'users_db'):
-            print("users_db doesn't exist!")
+            print("users_db n'existe pas !")
             return []
             
         if not self.users_db:
-            print("users_db is empty!")
+            print("users_db est vide !")
             return []
             
         for user_id, user in self.users_db.items():
@@ -144,7 +144,7 @@ class Facade:
             'name': amenity_data['name'],
             'created_at': current_time,
             'updated_at': current_time,
-            'places': []  # Liste vide de places associées initialement
+            'places': []  # Empty list of initially associated places
         }
         
         self.amenities_db[amenity_id] = amenity
@@ -173,11 +173,11 @@ class Facade:
         Returns:
             list: List of all amenities
         """
-        # S'assurer que amenities_db existe
+        # Make sure amenities_db exists
         if not hasattr(self, 'amenities_db'):
             self.amenities_db = {}
         
-        # S'assurer que chaque amenity a un champ places
+        # Ensure each amenity has a places field
         for amenity_id, amenity in self.amenities_db.items():
             if 'places' not in amenity:
                 amenity['places'] = []
@@ -214,7 +214,7 @@ class Facade:
         # Update the timestamp
         amenity['updated_at'] = datetime.now().isoformat()
         
-        # S'assurer que le champ places existe
+        # Ensure the places field exists
         if 'places' not in amenity:
             amenity['places'] = []
         
@@ -297,7 +297,7 @@ class Facade:
                 'latitude': float(place_data.get('latitude', 0.0)),
                 'longitude': float(place_data.get('longitude', 0.0)),
                 'owner_id': owner_id,  # Keep this for internal reference
-                'amenities': amenities_objects,  # Pour afficher le nom complet des amenities
+                'amenities': amenities_objects,  # To display the full name of amenities
                 'created_at': datetime.now().isoformat(),
                 'updated_at': datetime.now().isoformat(),
                 # Add owner details for API response
@@ -348,11 +348,11 @@ class Facade:
                 'email': '(unknown)'
             }
         
-        # NOUVEAU CODE: Transformer les IDs d'amenities en objets complets
+        # NEW CODE: Transform amenity IDs into complete objects
         amenity_ids = place.get('amenities', [])
         amenities_objects = []
         
-        # S'assurer que amenities_db existe
+        # Make sure amenities_db exists
         if not hasattr(self, 'amenities_db'):
             self.amenities_db = {}
         
@@ -381,7 +381,7 @@ class Facade:
         Returns:
             list: List of all places with complete information
         """
-        # Réutiliser get_places() qui fonctionne déjà correctement
+        # Reuse get_places() which already works correctly
         return self.get_places()
 
     def update_place(self, place_id, place_data):
@@ -404,7 +404,7 @@ class Facade:
             raise ValueError("Latitude must be between -90 and 90")
             
         if 'longitude' in place_data and not -180 <= place_data['longitude'] <= 180:
-            raise ValueError("Longitude must be between -180 and 180")
+            raise ValueError("Longitude must be between -180 et 180")
         
         # Check if owner_id is being updated and if the new owner exists
         owner_id = place_data.get('owner_id', place.get('owner_id'))
@@ -429,13 +429,13 @@ class Facade:
                 'email': owner.get('email', '')
             }
         
-        # Gérer les amenities si elles sont mises à jour
+        # Handle amenities if they are updated
         if 'amenities' in place_data:
-            # S'assurer que amenities_db existe
+            # Make sure amenities_db exists
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
-            # Transformer les IDs amenities en objets complets pour la réponse API
+            # Transform amenity IDs into complete objects for API response
             amenity_ids = place_data['amenities']
             amenities_objects = []
             
@@ -680,7 +680,7 @@ class Facade:
             if not hasattr(self, 'places_db'):
                 self.places_db = {}
             
-            # S'assurer que amenities_db existe
+            # Make sure amenities_db exists
             if not hasattr(self, 'amenities_db'):
                 self.amenities_db = {}
             
