@@ -56,6 +56,7 @@ class Facade:
             if existing_user.get('email', '').lower() == email:
                 raise ValueError(f"Email {email} is already registered")
         
+        # Create user object with all fields
         user = User(
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
@@ -63,19 +64,35 @@ class Facade:
             is_admin=user_data.get('is_admin', False)
         )
         
-        # Make sure all fields are included in the dictionary
+        # Hash the password if provided
+        if 'password' in user_data and user_data['password']:
+            user.hash_password(user_data['password'])
+        
+        # Store user in database
         user_dict = {
             'id': user.id,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
             'is_admin': user.is_admin,
+            'password': user.password,  # Store hashed password
             'created_at': user.created_at.isoformat() if hasattr(user.created_at, 'isoformat') else user.created_at,
             'updated_at': user.updated_at.isoformat() if hasattr(user.updated_at, 'isoformat') else user.updated_at
         }
         
         self.users_db[user.id] = user_dict
-        return user_dict
+        
+        # Create a NEW User object without password
+        response_user = User(
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            is_admin=user.is_admin
+        )
+        response_user.id = user.id  # Preserve the ID
+        
+        # Return the user without password
+        return response_user
 
     def update_user(self, user_id, data):
         if user_id not in self.users_db:

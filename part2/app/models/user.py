@@ -1,5 +1,6 @@
 from .base_model import BaseModel
 import re
+from app import bcrypt  # Import bcrypt from the app package
 
 class User(BaseModel):
     """Represents a user in the system.
@@ -12,17 +13,19 @@ class User(BaseModel):
         first_name (str): User's first name, max 50 characters
         last_name (str): User's last name, max 50 characters
         email (str): User's email address
+        password (str): User's hashed password
         is_admin (bool): Admin status, defaults to False
         created_at (DateTime): Timestamp when the user is created
         updated_at (DateTime): Timestamp when the user is last updated
     """
-    def __init__(self, first_name, last_name, email, is_admin=False, **kwargs):
+    def __init__(self, first_name, last_name, email, password=None, is_admin=False, **kwargs):
         """Initialize a new User instance.
         
         Args:
             first_name (str): User's first name
             last_name (str): User's last name 
             email (str): User's email address
+            password (str, optional): User's password. Defaults to None.
             is_admin (bool, optional): Admin status. Defaults to False.
         """
         super().__init__(**kwargs)
@@ -50,7 +53,20 @@ class User(BaseModel):
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+        self.password = None  # Initialize password as None
         self.reviews = []  # List of reviews by this user
+        
+        # Hash the password if provided
+        if password:
+            self.hash_password(password)
+    
+    def hash_password(self, password):
+        """Hash the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verify if provided password matches the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
     
     def add_review(self, review):
         """Add a review to the user's reviews"""
@@ -65,5 +81,5 @@ class User(BaseModel):
             'last_name': self.last_name,
             'email': self.email,
             'is_admin': self.is_admin
-        })
+        })  # Password not included for security reasons
         return user_dict

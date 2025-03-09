@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequest
 
 api = Namespace('users', description='User operations')
 
-# Updated model with validation constraints AND proper examples
+# Update input model to include password
 user_model = api.model('User', {
     'first_name': fields.String(
         required=True, 
@@ -24,7 +24,13 @@ user_model = api.model('User', {
         required=True, 
         description='Email of the user, must be in valid format',
         pattern=r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$',
-        example='john.doe@example.com'  # Add a clean example
+        example='john.doe@example.com'
+    ),
+    'password': fields.String(
+        required=True,
+        description='User password',
+        min_length=8,
+        example='SecureP@ssw0rd'
     ),
     'is_admin': fields.Boolean(
         required=False, 
@@ -45,6 +51,12 @@ user_response_model = api.model('UserResponse', {
     'updated_at': fields.DateTime(description='Timestamp of last update')
 })
 
+# Create a model for registration response
+registration_response = api.model('RegistrationResponse', {
+    'id': fields.String(description='User unique identifier'),
+    'message': fields.String(description='Success message'),
+})
+
 @api.route('/')
 class UserList(Resource):
     @api.doc('list_users')
@@ -55,12 +67,19 @@ class UserList(Resource):
 
     @api.doc('create_user')
     @api.expect(user_model)
-    @api.marshal_with(user_response_model, code=201, mask=False)  # Add mask=False here
     @api.response(400, 'Validation Error')
     def post(self):
         """Create a new user"""
         try:
-            return facade.create_user(api.payload), 201
+            user = facade.create_user(api.payload)
+            
+            # Retourner EXPLICITEMENT uniquement ces deux champs
+            # Ne pas utiliser marshal_with pour être sûr
+            response = {
+                'id': str(user.id),
+                'message': 'User successfully registered'
+            }
+            return response, 201
         except ValueError as e:
             api.abort(400, str(e))
 
