@@ -97,6 +97,26 @@ place_response_model = api.model('PlaceResponse', {
     'updated_at': fields.DateTime(description='Last update date')
 })
 
+# Create a specific Place model for the /place_id/reviews endpoint WITHOUT the reviews field
+place_without_reviews_model = api.model('PlaceWithoutReviews', {
+    'id': fields.String(description='Place unique identifier'),
+    'title': fields.String(description='Place title'),
+    'description': fields.String(description='Place description'),
+    'price': fields.Float(description='Price per night'),
+    'latitude': fields.Float(description='Place latitude'),
+    'longitude': fields.Float(description='Place longitude'),
+    'owner': fields.Nested(user_model, description='Place owner'),
+    'amenities': fields.List(fields.Nested(amenity_model), description='Available amenities'),
+    'created_at': fields.DateTime(description='Creation date'),
+    'updated_at': fields.DateTime(description='Last update date')
+})
+
+# Use this new model in the combined model
+place_with_reviews_model = api.model('PlaceWithReviews', {
+    'place': fields.Nested(place_without_reviews_model),  # Use the model WITHOUT reviews
+    'reviews': fields.List(fields.Nested(review_model))
+})
+
 @api.route('/')
 class PlaceList(Resource):
     @api.doc('list_places')
@@ -117,7 +137,7 @@ class PlaceList(Resource):
             api.abort(400, str(e))
         except Exception as e:
             print(f"Unexpected error in POST /places/: {str(e)}")
-            api.abort(500, "Une erreur interne est survenue")
+            api.abort(500, "An internal error occurred")
 
 @api.route('/<string:place_id>')
 @api.param('place_id', 'Unique identifier for the place')
@@ -150,12 +170,68 @@ class PlaceResource(Resource):
 @api.route('/<string:place_id>/reviews')
 @api.param('place_id', 'The place identifier')
 class PlaceReviewList(Resource):
-    @api.response(200, 'List of reviews for the place retrieved successfully')
+    @api.doc('get_place_reviews')
+    # Add mask=False to remove the X-Fields header
+    @api.marshal_with(place_with_reviews_model, mask=False)
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get all reviews for a specific place"""
+        """Get a place with all its reviews"""
         try:
-            reviews = facade.get_reviews_by_place(place_id)
-            return reviews, 200
+            # Get the place
+            place = facade.get_place(place_id)
+            if not place:
+                api.abort(404, f"Place {place_id} not found")
+            
+            # Get the reviews
+            try:
+                reviews = facade.get_reviews_by_place(place_id)
+            except ValueError:
+                # If an error occurs, use an empty list
+                reviews = []
+            
+            # IMPORTANT: Remove the reviews field from the place to avoid duplication
+            if 'reviews' in place:
+                del place['reviews']
+                
+            # Make sure amenities is properly formatted
+            if 'amenities' not in place or place['amenities'] is None:
+                place['amenities'] = []
+                        
+            formatted_amenities = []
+            if place['amenities']:
+                for item in place['amenities']:
+                    if isinstance(item, str):  # If it's an ID
+                        amenity = facade.get_amenity(item)
+                        if amenity:
+                            formatted_amenities.append({
+                                'id': item,
+                                'name': amenity.get('name', '')
+                            })
+                    elif isinstance(item, dict) and 'id' in item and 'name' in item:
+                        # Already in the right format
+                        formatted_amenities.append(item)
+                    elif isinstance(item, dict) and 'id' in item:
+                        # Has ID but not name
+                        amenity = facade.get_amenity(item['id'])
+                        if amenity:
+                            formatted_amenities.append({
+                                'id': item['id'],
+                                'name': amenity.get('name', '')
+                            })
+            
+            # Replace amenities with the formatted version
+            place['amenities'] = formatted_amenities
+            
+            # The dates issue: they are part of the Place model, not the amenities
+            # They will always appear because they are attributes of the place
+            
+            # Return an object containing the place and its reviews
+            return {
+                'place': place,
+                'reviews': reviews
+            }
         except ValueError as e:
-            return {'message': str(e)}, 404
+            api.abort(404, str(e))
+        except Exception as e:
+            print(f"Error in get_place_reviews: {str(e)}")
+            api.abort(500, "An internal error occurred")
