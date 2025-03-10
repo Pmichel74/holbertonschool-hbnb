@@ -1,62 +1,50 @@
-from abc import ABC, abstractmethod
-
-class Repository(ABC):
-    """Abstract base class defining the interface for data persistence operations.
-    
-    This class defines the contract that all repository implementations must follow,
-    providing standard methods for CRUD operations on objects.
-    """
-    @abstractmethod
-    def add(self, obj):
-        pass
-
-    @abstractmethod
-    def get(self, obj_id):
-        pass
-
-    @abstractmethod
-    def get_all(self):
-        pass
-
-    @abstractmethod
-    def update(self, obj_id, data):
-        pass
-
-    @abstractmethod
-    def delete(self, obj_id):
-        pass
-
-    @abstractmethod
-    def get_by_attribute(self, attr_name, attr_value):
-        pass
+#!/usr/bin/python3
+"""Module pour le Repository Pattern"""
+from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
+from os import getenv
 
 
-class InMemoryRepository(Repository):
-    """In-memory implementation of the Repository interface.
-    
-    This implementation stores objects in a dictionary that exists only for the 
-    lifetime of the application. No data persistence between application restarts.
-    """
+class Repository:
+    """Classe Repository pour gérer le stockage des données"""
+
     def __init__(self):
-        self._storage = {}
+        """Initialise le repository avec le type de stockage approprié"""
+        storage_type = getenv('HBNB_TYPE_STORAGE')
+        if storage_type == 'db':
+            self._storage = DBStorage()
+        else:
+            self._storage = FileStorage()
+        self._storage.reload()
 
-    def add(self, obj):
-        self._storage[obj.id] = obj
+    def all(self, cls=None):
+        """Retourne tous les objets d'une classe donnée"""
+        return self._storage.all(cls)
 
-    def get(self, obj_id):
-        return self._storage.get(obj_id)
+    def new(self, obj):
+        """Ajoute un nouvel objet au stockage"""
+        self._storage.new(obj)
 
-    def get_all(self):
-        return list(self._storage.values())
+    def save(self):
+        """Sauvegarde les modifications dans le stockage"""
+        self._storage.save()
 
-    def update(self, obj_id, data):
-        obj = self.get(obj_id)
-        if obj:
-            obj.update(data)
+    def delete(self, obj=None):
+        """Supprime un objet du stockage"""
+        self._storage.delete(obj)
 
-    def delete(self, obj_id):
-        if obj_id in self._storage:
-            del self._storage[obj_id]
+    def reload(self):
+        """Recharge les données du stockage"""
+        self._storage.reload()
 
-    def get_by_attribute(self, attr_name, attr_value):
-        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+    def close(self):
+        """Ferme la session de stockage"""
+        self._storage.close()
+
+    def get(self, cls, id):
+        """Récupère un objet par sa classe et son ID"""
+        return self._storage.get(cls, id)
+
+    def count(self, cls=None):
+        """Compte le nombre d'objets dans le stockage"""
+        return self._storage.count(cls)

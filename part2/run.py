@@ -1,13 +1,14 @@
+#!/usr/bin/python3
+"""Point d'entrée de l'application HBNB"""
+import os
 from app import create_app
 
-"""Entry point for running the Flask application.
+# Déterminer l'environnement (development, production, testing)
+env = os.environ.get('FLASK_ENV', 'development')
+app = create_app(env)
 
-This module creates and configures the Flask application instance using
-the create_app factory function. When run directly, it starts the 
-development server on localhost port 5000 with debug mode enabled.
-"""
-
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+if __name__ == "__main__":
+    # Configurez le mode debug, le port, etc.
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host=host, port=port)

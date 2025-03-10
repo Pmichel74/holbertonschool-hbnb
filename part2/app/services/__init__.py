@@ -1,4 +1,3 @@
-from .facade import Facade
-
-# Instance unique partagée
-facade = Facade()
+#!/usr/bin/python3
+"""Package de services"""
+# Pas d'importation ici

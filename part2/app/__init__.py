@@ -1,29 +1,55 @@
-from flask import Flask
-from flask_restx import Api
-from flask_bcrypt import Bcrypt
-bcrypt = Bcrypt()
-from .api.v1.users import api as users_ns
-from .api.v1.amenities import api as amenities_ns
-from .api.v1.places import api as places_ns
-from .api.v1.reviews import api as reviews_ns
+#!/usr/bin/python3
+"""Initialisation de l'application Flask HBNB"""
+from flask import Flask, jsonify
+from flask_cors import CORS
+from app.config import config
 
-def create_app(config_class="config.DevelopmentConfig"):
+def create_app(config_name='default'):
+    """Crée et configure l'application Flask"""
     app = Flask(__name__)
-    app.config.from_object(config_class)
-    bcrypt.init_app(app)
+    app.config.from_object(config[config_name])
     
-    api = Api(
-        app, 
-        version='1.0', 
-        title='HBNB API', 
-        description='HBNB Application API', 
-        doc='/api/v1/'
-    )
-
-    # Register namespaces
-    api.add_namespace(users_ns)
-    api.add_namespace(amenities_ns)
-    api.add_namespace(places_ns)
-    api.add_namespace(reviews_ns)
-
+    # Initialiser CORS
+    CORS(app, resources={r"/*": {"origins": "*"}})
+    
+    # Route de base pour vérifier que l'API est en ligne
+    @app.route('/')
+    def index():
+        return jsonify({
+            "status": "success",
+            "message": "HBNB API is running. Access /api for the API documentation."
+        })
+    
+    # Route de test simple
+    @app.route('/test')
+    def test():
+        return jsonify({
+            "status": "success",
+            "message": "Test route is working!"
+        })
+    
+    # Importation et enregistrement des routes de test
+    from app.routes import test_bp
+    app.register_blueprint(test_bp)
+    
+    # Initialisation du stockage (avant l'API pour éviter les problèmes d'accès au stockage)
+    with app.app_context():
+        from app.persistence import storage_engine
+        storage_engine.storage = storage_engine.get_storage()
+    
+    # Enregistrement du blueprint API
+    from app.api import blueprint as api_blueprint
+    app.register_blueprint(api_blueprint)
+    
+    # Initialisation des gestionnaires d'erreurs
+    from app.error_handlers import register_error_handlers
+    register_error_handlers(app)
+    
+    @app.teardown_appcontext
+    def close_storage(exception):
+        """Ferme le stockage à la fin de chaque requête"""
+        from app.persistence import storage_engine
+        if hasattr(storage_engine, 'storage') and storage_engine.storage:
+            storage_engine.storage.close()
+    
     return app
