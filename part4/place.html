@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBNB - Place Details</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <img src="img/logo.png" alt="HBNB Logo" class="logo">
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html" class="login-button">Login</a>
+        </nav>
+    </header>
+    <main>
+        <h1 class="description-title">A beautiful apartment in the heart of the city</h1>
+        
+        <div class="place-container">
+            <h2 class="place-heading">Cozy Apartment</h2>
+            <div class="details-amenities-container">
+                <div class="details-section">
+                    <h3>Details</h3>
+                    <div class="detail-item"><strong>Host:</strong> John Doe</div>
+                    <div class="detail-item"><strong>Price:</strong> $100 per night</div>
+                    <div class="detail-item"><strong>Location:</strong> Downtown, City Center</div>
+                </div>
+                
+                <div class="details-section">
+                    <h3>Amenities</h3>
+                    <div class="amenities-grid">
+                        <div class="amenity-item">
+                            <i class="fas fa-wifi"></i>
+                            <span>WiFi</span>
+                        </div>
+                        <div class="amenity-item">
+                            <i class="fas fa-utensils"></i>
+                            <span>Kitchen</span>
+                        </div>
+                        <div class="amenity-item">
+                            <i class="fas fa-snowflake"></i>
+                            <span>Air Conditioning</span>
+                        </div>
+                        <div class="amenity-item">
+                            <i class="fas fa-parking"></i>
+                            <span>Free Parking</span>
+                        </div>
+                        <div class="amenity-item">
+                            <i class="fas fa-tv"></i>
+                            <span>TV</span>
+                        </div>
+                        <div class="amenity-item">
+                            <i class="fas fa-bath"></i>
+                            <span>Private Bathroom</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="place-description">
+                This cozy place has everything you need for a comfortable stay. Close to restaurants, cafés, and public transportation. Enjoy the beautiful views from the balcony and relax in this stylish and modern apartment. Perfect for couples or solo travelers looking to explore the city.
+            </div>
+        </div>
+        
+        <div class="reviews-section">
+            <h2 class="section-title">Reviews</h2>
+            
+            <div class="reviews-container">
+                <div class="review-card">
+                    <div class="review-header">
+                        <img src="img/avatar1.jpg" alt="Jane Smith" class="reviewer-avatar">
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Jane Smith</div>
+                            <div class="review-date">March 15, 2025</div>
+                        </div>
+                    </div>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <span>5.0</span>
+                    </div>
+                    <p class="review-text">"Amazing place to stay! The apartment was clean and exactly as described. The location is perfect for exploring the city. I would definitely recommend this place to anyone looking for a comfortable stay."</p>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-header">
+                        <img src="img/avatar2.jpg" alt="Mike Johnson" class="reviewer-avatar">
+                        <div class="reviewer-info">
+                            <div class="reviewer-name">Mike Johnson</div>
+                            <div class="review-date">March 10, 2025</div>
+                        </div>
+                    </div>
+                    <div class="rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        <span>4.0</span>
+                    </div>
+                    <p class="review-text">"Great location, very clean. The host was very responsive and helpful. The only issue was that the WiFi was a bit slow at times. Would definitely stay here again despite that minor inconvenience."</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="add-review-section">
+            <h2 class="section-title">Add a Review</h2>
+            <div class="add-review">
+                <form class="form">
+                    <label for="review-content">Your Experience:</label>
+                    <textarea id="review-content" name="review-content" required placeholder="Share your experience with this place..." rows="5"></textarea>
+                    
+                    <label for="review-rating">Rating:</label>
+                    <select id="review-rating" name="rating" required>
+                        <option value="">Select a rating</option>
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Average</option>
+                        <option value="2">2 - Poor</option>
+                        <option value="1">1 - Terrible</option>
+                    </select>
+                    
+                    <button type="submit">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 HBNB - All rights reserved</p>
+    </footer>
+    <script src="scripts.js"></script>
+</body>
+</html>
