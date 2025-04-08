@@ -39,6 +39,8 @@
     <header>
         <img src="img/logo.png" alt="HBNB Logo" class="logo">
         <nav>
+            <a href="index.html" class="home-button">Home</a>
+            <a href="#" class="logout-button" style="display: none;">Logout</a>
             <a href="login.html" class="login-button">Login</a>
         </nav>
     </header>
@@ -52,23 +54,8 @@
                 <!-- Options will be populated dynamically -->
             </select>
         </div>
-        <section id="places-list">
-            <div class="place-card">
-                <h2>Cozy Apartment</h2>
-                <p>Price: $100 per night</p>
-                <button class="details-button">View Details</button>
-            </div>
-            <div class="place-card">
-                <h2>Beach House</h2>
-                <p>Price: $150 per night</p>
-                <button class="details-button">View Details</button>
-            </div>
-            <div class="place-card">
-                <h2>Mountain Cabin</h2>
-                <p>Price: $120 per night</p>
-                <button class="details-button">View Details</button>
-            </div>
-        </section>
+        <!-- Container pour afficher les places -->
+        <div id="places-list"></div>
     </main>
     <footer>
         All rights reserved.

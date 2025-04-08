@@ -19,13 +19,20 @@
             <h2>Welcome to HBNB</h2>
             <p style="text-align: center; margin-bottom: 20px; color: #717171;">Sign in to your account</p>
             
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
             
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
             
-            <button type="submit" style="background-color: lab(72.6% 21.05 75.78);">Login</button>
+            <!-- Élément pour afficher les messages d'erreur -->
+            <div id="login-error" class="error-message" style="display:none; color:red;"></div>
+            
+            <button type="submit" style="background-color: lab(72.6% 21.05 75.78);">Se connecter</button>
             
             <p style="text-align: center; margin-top: 20px;">
                 <a href="#" style="color: #534f4f; text-decoration: none; font-weight: bold;">Forgot password?</a>
