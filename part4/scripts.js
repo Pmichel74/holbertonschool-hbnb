@@ -159,7 +159,7 @@ async function loginUser(email, password) {
       headers: {
         'Content-Type': 'application/json'
       },
-      // Retirer credentials: 'include' comme dans l'exemple
+      credentials: 'include', // Ensure cookies are included in the request
       body: JSON.stringify({ email, password })
     });
     
@@ -224,72 +224,43 @@ async function loginUser(email, password) {
 async function fetchPlaces(token) {
     try {
         console.log('Attempting to fetch places with token:', token);
-        
+
         if (!token) {
             console.error("Missing authentication token");
             return;
         }
-        
-        // Simplifier la requête en suivant l'exemple
-        const response = await fetch('http://localhost:5000/api/v1/places', {
+
+        const response = await fetch('http://localhost:5000/api/v1/places/', { // Ajout du slash final
             method: 'GET',
             headers: {
-                "Authorization": token // Sans 'Bearer ' comme dans l'exemple
-            }
+                'Authorization': `Bearer ${token}`, // Ajout du préfixe 'Bearer'
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include' // Inclure les cookies
         });
-        
+
         console.log('Places response status:', response.status);
-        
+
         if (response.ok) {
             const data = await response.json();
             console.log('Places data received:', data);
-            
-            // Vérifier si les données sont bien des places
-            if (data && (Array.isArray(data) || data.places)) {
-                const places = Array.isArray(data) ? data : data.places || [];
-                
-                if (places.length > 0) {
-                    console.log('First place example:', places[0]);
-                }
-                
-                displayPlaces(places);
-                window.allPlaces = places;
+
+            if (data && Array.isArray(data)) {
+                displayPlaces(data);
+                window.allPlaces = data;
             } else {
                 console.error('Invalid places data format:', data);
                 throw new Error('Invalid data format received from server');
             }
         } else {
             console.error('Failed to fetch places:', response.status, response.statusText);
-            
-            // Afficher un message d'erreur à l'utilisateur
-            const placesList = document.getElementById('places-list');
-            if (placesList) {
-                placesList.innerHTML = `<p class="error-message" style="text-align: center; color: red; margin-top: 20px;">
-                    Impossible de récupérer les places. Statut: ${response.status}. Veuillez réessayer plus tard.
-                </p>`;
-            }
-            
-            // Si le statut est 401 ou 403, cela pourrait être un problème d'autorisation
             if (response.status === 401 || response.status === 403) {
-                console.error('Authentication issue - token might be invalid or expired');
-                // Déconnexion et redirection vers la page de login
                 document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                 window.location.href = 'login.html';
             }
         }
     } catch (error) {
         console.error('Error fetching places:', error);
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        
-        // Afficher un message d'erreur à l'utilisateur
-        const placesList = document.getElementById('places-list');
-        if (placesList) {
-            placesList.innerHTML = `<p class="error-message" style="text-align: center; color: red; margin-top: 20px;">
-                Erreur de connexion au serveur (${error.message}). Vérifiez que le backend est actif sur http://localhost:5000.
-            </p>`;
-        }
     }
 }
 

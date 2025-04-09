@@ -61,5 +61,18 @@
         All rights reserved.
     </footer>
     <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ajouter un écouteur d'événements aux boutons de détails
+            document.querySelectorAll('.details-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const placeId = this.getAttribute('data-id');
+                    if (placeId) {
+                        window.location.href = `place.html?id=${placeId}`;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

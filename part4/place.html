@@ -18,96 +18,30 @@
         </nav>
     </header>
     <main>
-        <h1 class="description-title">A beautiful apartment in the heart of the city</h1>
+        <h1 class="description-title"></h1>
         
         <div class="place-container">
-            <h2 class="place-heading">Cozy Apartment</h2>
+            <h2 class="place-heading"></h2>
             <div class="details-amenities-container">
                 <div class="details-section">
                     <h3>Details</h3>
-                    <div class="detail-item"><strong>Host:</strong> John Doe</div>
-                    <div class="detail-item"><strong>Price:</strong> $100 per night</div>
-                    <div class="detail-item"><strong>Location:</strong> Downtown, City Center</div>
+                    <div class="detail-item"><strong>Host:</strong></div>
+                    <div class="detail-item"><strong>Price:</strong></div>
                 </div>
                 
                 <div class="details-section">
                     <h3>Amenities</h3>
-                    <div class="amenities-grid">
-                        <div class="amenity-item">
-                            <i class="fas fa-wifi"></i>
-                            <span>WiFi</span>
-                        </div>
-                        <div class="amenity-item">
-                            <i class="fas fa-utensils"></i>
-                            <span>Kitchen</span>
-                        </div>
-                        <div class="amenity-item">
-                            <i class="fas fa-snowflake"></i>
-                            <span>Air Conditioning</span>
-                        </div>
-                        <div class="amenity-item">
-                            <i class="fas fa-parking"></i>
-                            <span>Free Parking</span>
-                        </div>
-                        <div class="amenity-item">
-                            <i class="fas fa-tv"></i>
-                            <span>TV</span>
-                        </div>
-                        <div class="amenity-item">
-                            <i class="fas fa-bath"></i>
-                            <span>Private Bathroom</span>
-                        </div>
-                    </div>
+                    <div class="amenities-grid"></div>
                 </div>
             </div>
             
-            <div class="place-description">
-                This cozy place has everything you need for a comfortable stay. Close to restaurants, cafés, and public transportation. Enjoy the beautiful views from the balcony and relax in this stylish and modern apartment. Perfect for couples or solo travelers looking to explore the city.
-            </div>
+            <div class="place-description"></div>
         </div>
         
         <div class="reviews-section">
             <h2 class="section-title">Reviews</h2>
             
-            <div class="reviews-container">
-                <div class="review-card">
-                    <div class="review-header">
-                        <img src="img/avatar1.jpg" alt="Jane Smith" class="reviewer-avatar">
-                        <div class="reviewer-info">
-                            <div class="reviewer-name">Jane Smith</div>
-                            <div class="review-date">March 15, 2025</div>
-                        </div>
-                    </div>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <span>5.0</span>
-                    </div>
-                    <p class="review-text">"Amazing place to stay! The apartment was clean and exactly as described. The location is perfect for exploring the city. I would definitely recommend this place to anyone looking for a comfortable stay."</p>
-                </div>
-                
-                <div class="review-card">
-                    <div class="review-header">
-                        <img src="img/avatar2.jpg" alt="Mike Johnson" class="reviewer-avatar">
-                        <div class="reviewer-info">
-                            <div class="reviewer-name">Mike Johnson</div>
-                            <div class="review-date">March 10, 2025</div>
-                        </div>
-                    </div>
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="far fa-star"></i>
-                        <span>4.0</span>
-                    </div>
-                    <p class="review-text">"Great location, very clean. The host was very responsive and helpful. The only issue was that the WiFi was a bit slow at times. Would definitely stay here again despite that minor inconvenience."</p>
-                </div>
-            </div>
+            <div class="reviews-container"></div>
         </div>
         
         <div class="add-review-section">
@@ -136,5 +70,143 @@
         <p>&copy; 2025 HBNB - All rights reserved</p>
     </footer>
     <script src="scripts.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const placeId = urlParams.get('id');
+
+            if (!placeId) {
+                console.error('No place ID found in the URL');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/v1/places/${placeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const place = await response.json();
+
+                    // Vérifier si les éléments existent avant de les modifier
+                    const titleElement = document.querySelector('.description-title');
+                    if (titleElement) titleElement.textContent = place.title;
+
+                    const headingElement = document.querySelector('.place-heading');
+                    if (headingElement) headingElement.textContent = place.title;
+
+                    const hostElement = document.querySelector('.details-section .detail-item:nth-child(1)');
+                    if (hostElement) hostElement.innerHTML = `<strong>Host:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
+
+                    const priceElement = document.querySelector('.details-section .detail-item:nth-child(2)');
+                    if (priceElement) priceElement.innerHTML = `<strong>Price:</strong> $${place.price} per night`;
+
+                    const locationElement = document.querySelector('.details-section .detail-item:nth-child(3)');
+                    if (locationElement) locationElement.innerHTML = `<strong>Location:</strong> ${place.latitude}, ${place.longitude}`;
+
+                    const amenitiesGrid = document.querySelector('.amenities-grid');
+                    if (amenitiesGrid) {
+                        amenitiesGrid.innerHTML = '';
+                        if (place.amenities && place.amenities.length > 0) {
+                            place.amenities.forEach(amenity => {
+                                // Vérifie si l'amenity est disponible
+                                const amenityItem = document.createElement('div');
+                                amenityItem.classList.add('amenity-item');
+
+                                // Sélectionne l'icône appropriée en fonction du nom de l'amenity
+                                let iconClass = "fas fa-check"; // Icône par défaut
+
+                                if (amenity.name.toLowerCase().includes('wifi')) {
+                                    iconClass = "fas fa-wifi";
+                                } else if (amenity.name.toLowerCase().includes('tv') || amenity.name.toLowerCase().includes('television')) {
+                                    iconClass = "fas fa-tv";
+                                } else if (amenity.name.toLowerCase().includes('parking')) {
+                                    iconClass = "fas fa-car";
+                                } else if (amenity.name.toLowerCase().includes('pool') || amenity.name.toLowerCase().includes('swimming')) {
+                                    iconClass = "fas fa-swimming-pool";
+                                } else if (amenity.name.toLowerCase().includes('kitchen')) {
+                                    iconClass = "fas fa-utensils";
+                                } else if (amenity.name.toLowerCase().includes('air') || amenity.name.toLowerCase().includes('ac')) {
+                                    iconClass = "fas fa-snowflake";
+                                } else if (amenity.name.toLowerCase().includes('washer') || amenity.name.toLowerCase().includes('dryer') || amenity.name.toLowerCase().includes('laundry')) {
+                                    iconClass = "fas fa-tshirt";
+                                } else if (amenity.name.toLowerCase().includes('gym') || amenity.name.toLowerCase().includes('fitness')) {
+                                    iconClass = "fas fa-dumbbell";
+                                } else if (amenity.name.toLowerCase().includes('breakfast') || amenity.name.toLowerCase().includes('meal')) {
+                                    iconClass = "fas fa-coffee";
+                                } else if (amenity.name.toLowerCase().includes('workspace') || amenity.name.toLowerCase().includes('office')) {
+                                    iconClass = "fas fa-laptop";
+                                }
+
+                                amenityItem.innerHTML = `<i class="${iconClass}"></i><span>${amenity.name}</span>`;
+                                amenitiesGrid.appendChild(amenityItem);
+                            });
+                        } else {
+                            amenitiesGrid.innerHTML = '<p>No amenities available for this place.</p>';
+                        }
+                    }
+
+                    const descriptionElement = document.querySelector('.place-description');
+                    if (descriptionElement) descriptionElement.textContent = place.description;
+
+                    // Update reviews dynamically
+                    const reviewsContainer = document.querySelector('.reviews-container');
+                    if (reviewsContainer) {
+                        reviewsContainer.innerHTML = '';
+                        try {
+                            const reviewsResponse = await fetch(`http://localhost:5000/api/v1/places/${placeId}/reviews`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'include'
+                            });
+
+                            if (reviewsResponse.ok) {
+                                const reviews = await reviewsResponse.json();
+                                if (reviews.length > 0) {
+                                    reviews.forEach(review => {
+                                        const reviewCard = document.createElement('div');
+                                        reviewCard.classList.add('review-card');
+
+                                        reviewCard.innerHTML = `
+                                            <div class="review-header">
+                                                <img src="img/avatar_placeholder.jpg" alt="${review.user_id}" class="reviewer-avatar">
+                                                <div class="reviewer-info">
+                                                    <div class="reviewer-name">${review.first_name}</div>
+                                                    <div class="review-date">${new Date(review.created_at).toLocaleDateString()}</div>
+                                                </div>
+                                            </div>
+                                            <div class="rating">
+                                                ${'<i class="fas fa-star"></i>'.repeat(review.rating)}
+                                                ${'<i class="far fa-star"></i>'.repeat(5 - review.rating)}
+                                                <span>${review.rating}.0</span>
+                                            </div>
+                                            <p class="review-text">"${review.text}"</p>
+                                        `;
+                                        reviewsContainer.appendChild(reviewCard);
+                                    });
+                                } else {
+                                    reviewsContainer.innerHTML = '<p>No reviews available for this place.</p>';
+                                }
+                            } else {
+                                console.error('Failed to fetch reviews:', reviewsResponse.status, reviewsResponse.statusText);
+                            }
+                        } catch (error) {
+                            console.error('Error fetching reviews:', error);
+                        }
+                    }
+                } else {
+                    console.error('Failed to fetch place details:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching place details:', error);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -369,10 +369,10 @@ footer {
 
 /* AMENITIES */
 .amenities-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin: 15px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
 }
 
 .amenity-item {

@@ -33,25 +33,21 @@ def create_app(config_class="config.DevelopmentConfig"):
     # Configurer CORS pour permettre les requêtes cross-origin
     @app.after_request
     def after_request(response):
-        # Autoriser explicitement votre frontend
-        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5500')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        # Augmenter la durée du cache preflight
-        response.headers.add('Access-Control-Max-Age', '3600')
+        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5500'  # Autoriser l'origine du frontend
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'  # Méthodes autorisées
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'  # En-têtes autorisés
+        response.headers['Access-Control-Allow-Credentials'] = 'true'  # Autoriser les cookies et les identifiants
         return response
     
     # Simplifier les gestionnaires OPTIONS pour éviter les conflits
     @app.route('/<path:path>', methods=['OPTIONS'])
     @app.route('/', methods=['OPTIONS'])
-    def options_handler(path=''):
+    def handle_options(path=''):
         response = make_response()
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5500')
-        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
-        response.headers.add('Access-Control-Max-Age', '3600')
         return response, 200
     
     # Créer l'API Flask-RestX

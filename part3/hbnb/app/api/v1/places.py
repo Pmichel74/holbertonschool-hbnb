@@ -100,6 +100,15 @@ class PlaceResource(Resource):
         place_details = facade.get_place_with_details(place_id)
         if not place_details:
             return {'error': 'Place not found'}, 404
+
+        # Ensure both user_id, first_name, and created_at are included in reviews
+        for review in place_details.get('reviews', []):
+            if 'user_id' in review:
+                user = facade.get_user(review['user_id'])  # Fetch user details using user_id
+                if user:
+                    review['first_name'] = user.first_name
+                review['created_at'] = review.get('created_at')  # Ensure created_at is included
+
         return place_details, 200
 
     @api.expect(place_model)
@@ -218,11 +227,22 @@ class PlaceReviewList(Resource):
             return {'error': 'Place not found'}, 404
 
         # Convertir les objets datetime en chaînes pour la sérialisation     
-        return [{
-            'id': review.id,
-            'text': review.text,
-            'rating': review.rating,
-            'user_id': review.user_id,
-            'created_at': review.created_at.isoformat() if isinstance(review.created_at, datetime) else str(review.created_at),
-            'updated_at': review.updated_at.isoformat() if isinstance(review.updated_at, datetime) else str(review.updated_at)
-        } for review in reviews], 200
+        reviews_data = []
+        for review in reviews:
+            review_data = {
+                'id': review.id,
+                'text': review.text,
+                'rating': review.rating,
+                'user_id': review.user_id,
+                'created_at': review.created_at.isoformat() if isinstance(review.created_at, datetime) else str(review.created_at),
+                'updated_at': review.updated_at.isoformat() if isinstance(review.updated_at, datetime) else str(review.updated_at)
+            }
+            
+            # Ajouter le first_name de l'auteur du review
+            user = facade.get_user(review.user_id)
+            if user:
+                review_data['first_name'] = user.first_name
+                
+            reviews_data.append(review_data)
+            
+        return reviews_data, 200
