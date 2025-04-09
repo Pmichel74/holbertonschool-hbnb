@@ -21,10 +21,10 @@
         <h1 class="description-title"></h1>
         
         <div class="place-container">
-            <h2 class="place-heading"></h2>
             <div class="details-amenities-container">
                 <div class="details-section">
                     <h3>Details</h3>
+                    <div class="detail-item owner-detail"><strong>Owner:</strong></div>
                     <div class="detail-item"><strong>Host:</strong></div>
                     <div class="detail-item"><strong>Price:</strong></div>
                 </div>
@@ -71,6 +71,31 @@
     </footer>
     <script src="scripts.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Fonction pour récupérer un cookie par son nom
+            function getCookie(name) {
+                const cookies = document.cookie.split('; ');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].split('=');
+                    if (cookie[0] === name) {
+                        return cookie[1];
+                    }
+                }
+                return null;
+            }
+
+            // Vérification de l'authentification de l'utilisateur
+            const token = getCookie('token');
+            if (!token) {
+                // Rediriger vers la page index.html si l'utilisateur n'est pas authentifié
+                window.location.href = 'index.html';
+            } else {
+                console.log('User is authenticated. Token:', token);
+                // Stocker le token pour les requêtes API futures
+                window.userToken = token;
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const placeId = urlParams.get('id');
@@ -96,16 +121,19 @@
                     const titleElement = document.querySelector('.description-title');
                     if (titleElement) titleElement.textContent = place.title;
 
-                    const headingElement = document.querySelector('.place-heading');
-                    if (headingElement) headingElement.textContent = place.title;
+                    // Suppression de la référence à place-heading qui a été enlevée du HTML
+                    
+                    // Afficher le propriétaire en premier dans la section details
+                    const ownerElement = document.querySelector('.owner-detail');
+                    if (ownerElement) ownerElement.innerHTML = `<strong>Owner:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
 
-                    const hostElement = document.querySelector('.details-section .detail-item:nth-child(1)');
+                    const hostElement = document.querySelector('.details-section .detail-item:nth-child(2)');
                     if (hostElement) hostElement.innerHTML = `<strong>Host:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
 
-                    const priceElement = document.querySelector('.details-section .detail-item:nth-child(2)');
+                    const priceElement = document.querySelector('.details-section .detail-item:nth-child(3)');
                     if (priceElement) priceElement.innerHTML = `<strong>Price:</strong> $${place.price} per night`;
 
-                    const locationElement = document.querySelector('.details-section .detail-item:nth-child(3)');
+                    const locationElement = document.querySelector('.details-section .detail-item:nth-child(4)');
                     if (locationElement) locationElement.innerHTML = `<strong>Location:</strong> ${place.latitude}, ${place.longitude}`;
 
                     const amenitiesGrid = document.querySelector('.amenities-grid');

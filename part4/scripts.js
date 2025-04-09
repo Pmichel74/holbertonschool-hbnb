@@ -225,18 +225,26 @@ async function fetchPlaces(token) {
     try {
         console.log('Attempting to fetch places with token:', token);
 
-        if (!token) {
-            console.error("Missing authentication token");
-            return;
+        // Vérifier si le conteneur des places existe avant de continuer
+        const placesList = document.getElementById('places-list');
+        if (!placesList) {
+            console.log('Places list container not found, probably not on index page');
+            return; // Ne pas continuer si on n'est pas sur la page d'index
         }
 
-        const response = await fetch('http://localhost:5000/api/v1/places/', { // Ajout du slash final
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        // Add Authorization header only if token is available
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('http://localhost:5000/api/v1/places/', {
             method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`, // Ajout du préfixe 'Bearer'
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include' // Inclure les cookies
+            headers: headers,
+            credentials: 'include' // Include cookies
         });
 
         console.log('Places response status:', response.status);
@@ -255,8 +263,7 @@ async function fetchPlaces(token) {
         } else {
             console.error('Failed to fetch places:', response.status, response.statusText);
             if (response.status === 401 || response.status === 403) {
-                document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                window.location.href = 'login.html';
+                console.log('Authentication issue but continuing to show index page');
             }
         }
     } catch (error) {
