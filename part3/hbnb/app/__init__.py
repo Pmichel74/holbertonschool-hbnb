@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify, request
+from flask import Flask, make_response, jsonify, request, redirect
 from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
@@ -34,7 +34,7 @@ def create_app(config_class="config.DevelopmentConfig"):
     @app.after_request
     def after_request(response):
         response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5500'  # Autoriser l'origine du frontend
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'  # Méthodes autorisées
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'  # Add POST for reviews
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'  # En-têtes autorisés
         response.headers['Access-Control-Allow-Credentials'] = 'true'  # Autoriser les cookies et les identifiants
         return response
@@ -82,5 +82,23 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(places_ns, path='/api/v1/places')
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     api.add_namespace(auth_ns, path='/api/v1/auth')
+    
+    @app.route('/api/v1/places', methods=['GET'])
+    def places_without_slash():
+        return redirect('/api/v1/places/', code=307)  # Temporary redirect to avoid CORS issues
+    
+    @app.route('/api/v1/places/<place_id>/reviews', methods=['POST', 'OPTIONS'])
+    def place_reviews_endpoint(place_id):
+        if request.method == 'OPTIONS':
+            response = make_response()
+            response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5500')
+            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response, 200
+        else:
+            # Rediriger vers le bon endpoint du namespace reviews
+            # Cette route sert principalement à gérer le CORS pour les requêtes POST
+            return redirect('/api/v1/reviews', code=307)  # Temporary redirect
     
     return app
