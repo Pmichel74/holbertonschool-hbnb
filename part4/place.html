@@ -119,35 +119,25 @@
                 if (response.ok) {
                     place = await response.json(); // Assigner la réponse à la variable `place`
 
-                    // Vérifier si les éléments existent avant de les modifier
+                    // Mettre à jour les détails du lieu
                     const titleElement = document.querySelector('.description-title');
                     if (titleElement) titleElement.textContent = place.title;
 
-                    // Suppression de la référence à place-heading qui a été enlevée du HTML
-                    
-                    // Afficher le propriétaire en premier dans la section details
                     const ownerElement = document.querySelector('.owner-detail');
                     if (ownerElement) ownerElement.innerHTML = `<strong>Owner:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
 
-                    const hostElement = document.querySelector('.details-section .detail-item:nth-child(2)');
-                    if (hostElement) hostElement.innerHTML = `<strong>Host:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
-
                     const priceElement = document.querySelector('.details-section .detail-item:nth-child(3)');
                     if (priceElement) priceElement.innerHTML = `<strong>Price:</strong> $${place.price} per night`;
-
-                    const locationElement = document.querySelector('.details-section .detail-item:nth-child(4)');
-                    if (locationElement) locationElement.innerHTML = `<strong>Location:</strong> ${place.latitude}, ${place.longitude}`;
 
                     const amenitiesGrid = document.querySelector('.amenities-grid');
                     if (amenitiesGrid) {
                         amenitiesGrid.innerHTML = '';
                         if (place.amenities && place.amenities.length > 0) {
                             place.amenities.forEach(amenity => {
-                                // Vérifie si l'amenity est disponible
                                 const amenityItem = document.createElement('div');
                                 amenityItem.classList.add('amenity-item');
 
-                                // Sélectionne l'icône appropriée en fonction du nom de l'amenity
+                                // Sélectionner l'icône appropriée en fonction du nom de l'amenity
                                 let iconClass = "fas fa-check"; // Icône par défaut
 
                                 if (amenity.name.toLowerCase().includes('wifi')) {
@@ -183,7 +173,7 @@
                     const descriptionElement = document.querySelector('.place-description');
                     if (descriptionElement) descriptionElement.textContent = place.description;
 
-                    // Update reviews dynamically
+                    // Mettre à jour les reviews
                     const reviewsContainer = document.querySelector('.reviews-container');
                     if (reviewsContainer) {
                         reviewsContainer.innerHTML = '';
@@ -202,12 +192,11 @@
                                     reviews.forEach(review => {
                                         const reviewCard = document.createElement('div');
                                         reviewCard.classList.add('review-card');
-
                                         reviewCard.innerHTML = `
                                             <div class="review-header">
                                                 <img src="img/avatar_placeholder.jpg" alt="${review.user_id}" class="reviewer-avatar">
                                                 <div class="reviewer-info">
-                                                    <div class="reviewer-name">${review.first_name}</div>
+                                                    <div class="reviewer-name">${review.first_name || 'Anonymous'}</div>
                                                     <div class="review-date">${new Date(review.created_at).toLocaleDateString()}</div>
                                                 </div>
                                             </div>
