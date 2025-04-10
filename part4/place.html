@@ -96,6 +96,8 @@
             }
         });
 
+        let place; // Déclarer la variable `place` dans un scope global pour qu'elle soit accessible dans toutes les fonctions
+
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const placeId = urlParams.get('id');
@@ -115,7 +117,7 @@
                 });
 
                 if (response.ok) {
-                    const place = await response.json();
+                    place = await response.json(); // Assigner la réponse à la variable `place`
 
                     // Vérifier si les éléments existent avant de les modifier
                     const titleElement = document.querySelector('.description-title');
@@ -233,6 +235,111 @@
                 }
             } catch (error) {
                 console.error('Error fetching place details:', error);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reviewForm = document.querySelector('.form');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const token = getCookie('token');
+                    if (!token) {
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const placeId = urlParams.get('id');
+
+                    if (!placeId) {
+                        console.error('No place ID found in the URL');
+                        return;
+                    }
+
+                    const reviewContent = document.getElementById('review-content').value;
+                    const reviewRating = document.getElementById('review-rating').value;
+
+                    try {
+                        // Récupérer l'ID utilisateur depuis le token
+                        const userPayload = JSON.parse(atob(token.split('.')[1]));
+                        console.log('JWT payload:', userPayload);
+                        
+                        // L'ID utilisateur pourrait être dans différents champs selon l'implémentation du JWT
+                        // Vérifier toutes les propriétés possibles qui pourraient contenir l'ID utilisateur
+                        const userId = userPayload.sub || userPayload.user_id || userPayload.id || userPayload.userId;
+                        console.log('Using user ID:', userId);
+                        
+                        if (!userId) {
+                            throw new Error('Could not extract user ID from token');
+                        }
+
+                        // Vérifier si l'utilisateur est le propriétaire du lieu
+                        if (place.owner && place.owner.id === userId) {
+                            alert("Vous ne pouvez pas laisser un avis sur votre propre lieu.");
+                            return;
+                        }
+                        
+                        const reviewData = {
+                            text: reviewContent,
+                            rating: parseInt(reviewRating, 10),
+                            user_id: userId,
+                            place_id: placeId
+                        };
+                        
+                        console.log('Sending review data:', JSON.stringify(reviewData));
+                        
+                        // Tester avec un chemin d'API légèrement différent si nécessaire
+                        const apiUrl = `http://localhost:5000/api/v1/reviews/`;
+                        console.log('Sending POST request to:', apiUrl);
+                        
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(reviewData),
+                            credentials: 'include'
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        
+                        // Tenter de lire le corps de la réponse, qu'elle soit réussie ou non
+                        const responseText = await response.text();
+                        console.log('Raw response:', responseText);
+                        
+                        let responseData;
+                        try {
+                            // Tenter de parser le JSON seulement s'il y en a
+                            if (responseText) {
+                                responseData = JSON.parse(responseText);
+                                console.log('Parsed response data:', responseData);
+                            }
+                        } catch (e) {
+                            console.log('Response is not valid JSON:', responseText);
+                        }
+                        
+                        if (response.ok) {
+                            alert('Review submitted successfully!');
+                            reviewForm.reset();
+                            // Actualiser la page pour afficher le nouveau commentaire
+                            window.location.reload();
+                        } else {
+                            // Extraire le message d'erreur depuis la réponse
+                            const errorMessage = responseData && responseData.error 
+                                ? responseData.error 
+                                : `Server returned ${response.status}: ${response.statusText}`;
+                                
+                            console.error('Error submitting review:', errorMessage);
+                            alert(`Failed to submit review: ${errorMessage}`);
+                        }
+                    } catch (error) {
+                        console.error('Error submitting review:', error);
+                        alert('An error occurred while submitting your review. Please try again later.');
+                    }
+                });
             }
         });
     </script>

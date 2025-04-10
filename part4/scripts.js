@@ -241,7 +241,7 @@ async function fetchPlaces(token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        const response = await fetch('http://localhost:5000/api/v1/places/', {
+        const response = await fetch('http://localhost:5000/api/v1/places/', { // Ajout du slash final
             method: 'GET',
             headers: headers,
             credentials: 'include' // Include cookies
