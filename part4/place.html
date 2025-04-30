@@ -26,8 +26,8 @@
                     <h2>Details of the Place</h2>
                     <h3>Details</h3>
                     <div class="detail-item owner-detail"><strong>Owner:</strong></div>
-                    <div class="detail-item"><strong>Host:</strong></div>
-                    <div class="detail-item"><strong>Price:</strong></div>
+                    <div class="detail-item host-detail"><strong>Host:</strong></div>
+                    <div class="detail-item price-detail"></div>
                 </div>
                 
                 <div class="details-section">
@@ -84,17 +84,7 @@
                 }
                 return null;
             }
-
-            // Vérification de l'authentification de l'utilisateur
-            const token = getCookie('token');
-            if (!token) {
-                // Rediriger vers la page index.html si l'utilisateur n'est pas authentifié
-                window.location.href = 'index.html';
-            } else {
-                console.log('User is authenticated. Token:', token);
-                // Stocker le token pour les requêtes API futures
-                window.userToken = token;
-            }
+            // Pas de vérification de connexion ni redirection ici
         });
 
         let place; // Déclarer la variable `place` dans un scope global pour qu'elle soit accessible dans toutes les fonctions
@@ -129,6 +119,20 @@
 
                     const priceElement = document.querySelector('.details-section .detail-item:nth-child(3)');
                     if (priceElement) priceElement.innerHTML = `<strong>Price:</strong> $${place.price} per night`;
+
+                    const hostElement = document.querySelector('.host-detail');
+                    console.log('DEBUG place:', place); // debug
+                    if (hostElement) {
+                        if (place.host && place.host.first_name) {
+                            hostElement.innerHTML = `<strong>Host:</strong> ${place.host.first_name} ${place.host.last_name}`;
+                        } else if (place.user && place.user.first_name) {
+                            hostElement.innerHTML = `<strong>Host:</strong> ${place.user.first_name} ${place.user.last_name}`;
+                        } else if (place.owner && place.owner.first_name) {
+                            hostElement.innerHTML = `<strong>Host:</strong> ${place.owner.first_name} ${place.owner.last_name}`;
+                        } else {
+                            hostElement.innerHTML = `<strong>Host:</strong> Non disponible`;
+                        }
+                    }
 
                     const amenitiesGrid = document.querySelector('.amenities-grid');
                     if (amenitiesGrid) {
@@ -234,9 +238,10 @@
                 reviewForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
 
+                    // Vérifier le token UNIQUEMENT pour l'ajout de review
                     const token = getCookie('token');
                     if (!token) {
-                        window.location.href = 'index.html';
+                        alert('Vous devez être connecté pour laisser un avis.');
                         return;
                     }
 

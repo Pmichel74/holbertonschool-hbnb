@@ -88,7 +88,6 @@ function getCookie(name) {
 
 /**
  * Vérifier si l'utilisateur est authentifié et contrôle la visibilité des liens de navigation
- * Redirige vers la page de connexion si l'utilisateur n'est pas authentifié et est sur la page d'index
  */
 function checkAuthentication() {
     const token = getCookie('token');
@@ -107,11 +106,11 @@ function checkAuthentication() {
             logoutLink.style.display = 'none';
         }
         
-        // Rediriger vers la page de login si on est sur la page principale
+        // Ne plus rediriger vers la page de login même si on est sur la page principale
+        // Les utilisateurs non connectés peuvent voir la liste des places
         if (isIndexPage) {
-            console.log('User not authenticated, redirecting to login page');
-            window.location.href = 'login.html';
-            return false;
+            console.log('User not authenticated, but allowed to view places');
+            fetchPlaces(); // Charger quand même les places pour les visiteurs
         }
     } else {
         // L'utilisateur est authentifié
